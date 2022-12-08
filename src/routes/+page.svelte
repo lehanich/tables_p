@@ -1,5 +1,8 @@
 <h1>Welcome to SvelteKit</h1>
 <p></p>
+<template lang="pug">
+  div Posts 
+</template>
 
 <style lang="scss">
   $color: red;
