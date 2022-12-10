@@ -1,5 +1,29 @@
+<script>
+  import { importCSV } from "./importCSV.ts";
+
+  let files;
+  let fetchStatus = 'INITIAL';
+
+  $: if (files) {
+    fetchStatus = 'PENDING';
+    try {
+      importCSV(files);
+      fetchStatus = 'FULFILLED';
+    } catch {
+      fetchStatus = 'REJECTED'
+    }
+  }
+</script>
+
 <h1>Welcome to SvelteKit</h1>
-<p></p>
+
+{#if fetchStatus === 'FULFILLED'}
+<h2>Success</h2>
+{/if}
+{#if fetchStatus === 'REJECTED'}
+  <h2>Error</h2>
+{/if}
+<input type="file" bind:files>
 <template lang="pug">
   div Posts 
 </template>
