@@ -9,7 +9,21 @@ const config = {
 	server: {
 		proxy: {
 			'/api': 'http://localhost:3000',
-		}
+		},
+	},
+	build: {
+    commonjsOptions: {
+      dynamicRequireTargets: [
+        'src/lib/my.worker',
+      ],
+    },
+		rollupOptions: {
+			input: {
+					main: "index.html",
+					worker: "src/lib/"
+			}
+		},
+		manifest: true
 	},
 };
 
