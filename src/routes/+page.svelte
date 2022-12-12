@@ -1,6 +1,9 @@
 <script>
+    // export let name;
   import { importCSV } from "./importCSV.ts";
-
+  import Header from "../components/header/index.svelte";
+  import Toolbar from "../components/toolbar/index.svelte";
+  import Formula from "../components/formula/index.svelte";
   let files;
   let fetchStatus = 'INITIAL';
 
@@ -15,16 +18,11 @@
   }
 </script>
 
-<h1>Welcome to SvelteKit</h1>
 
-{#if fetchStatus === 'FULFILLED'}
-<h2>Success</h2>
-{/if}
-{#if fetchStatus === 'REJECTED'}
-  <h2>Error</h2>
-{/if}
-<input type="file" bind:files>
 <template lang="pug">
+  Header
+  Toolbar
+  Formula
   if fetchStatus === 'FULFILLED'
       h2 Success
   else if fetchStatus === 'REJECTED'
@@ -34,7 +32,9 @@
   div Posts 
 </template>
 
-<style lang="scss">
+<style lang="scss" module>
+  @import '../layout/styles/index.scss';
+
   $color: red;
 
   h1 {

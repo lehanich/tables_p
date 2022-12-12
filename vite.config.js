@@ -11,6 +11,10 @@ const config = {
 			'/api': 'http://localhost:3000',
 		},
 	},
+	// scss: {
+  //   includePaths: ['src', 'layout/styles'], // <-- Добавим в массив 'static/styles'
+  //   prependData: `@import 'index.scss';`, // <-- Добавим эту строку
+  // },
 	build: {
     commonjsOptions: {
       dynamicRequireTargets: [
