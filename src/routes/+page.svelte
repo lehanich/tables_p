@@ -25,6 +25,12 @@
 {/if}
 <input type="file" bind:files>
 <template lang="pug">
+  if fetchStatus === 'FULFILLED'
+      h2 Success
+  else if fetchStatus === 'REJECTED'
+      h2 Error
+  else
+      h2 1
   div Posts 
 </template>
 
@@ -38,8 +44,8 @@
   div {
     background: green;
 
-    > p {
-      color: #fff;
-    }
+    // > p {
+    //   color: #fff;
+    // }
   }
 </style>

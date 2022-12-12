@@ -19,11 +19,11 @@ const config = {
     },
 		rollupOptions: {
 			input: {
-					main: "index.html",
-					worker: "src/lib/"
+					// main: "index.html",
+					// worker: "src/lib/"
 			}
 		},
-		manifest: true
+		// manifest: true
 	},
 };
 
