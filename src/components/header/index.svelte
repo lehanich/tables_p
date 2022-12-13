@@ -1,3 +1,8 @@
 <template lang="pug">
-  h1 New Document
+  div.header
+    h1.header__h1 New Document
 </template>
+
+<style lang="scss">
+  @import "./header.scss";
+</style>
