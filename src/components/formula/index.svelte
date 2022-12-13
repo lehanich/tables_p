@@ -5,6 +5,6 @@
 </template>
 
 <style lang="scss" module>
-  @import "../../layout/styles/variables.scss";
+  // @import "../../layout/styles/variables.scss";
   @import "./formula.scss";
 </style>
