@@ -1,0 +1,11 @@
+.toolbar {
+  height: 40px;
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 34px;
+  border-top: 1px solid map-get($colors, main-border);
+  border-bottom: 1px solid map-get($colors, main-border);
+  padding: 7px 10px;
+  display: flex;
+}

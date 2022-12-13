@@ -1,51 +1,33 @@
 <script>
-  import { importCSV } from "./importCSV.ts";
-
-  let files;
-  let fetchStatus = 'INITIAL';
-
-  $: if (files) {
-    fetchStatus = 'PENDING';
-    try {
-      importCSV(files);
-      fetchStatus = 'FULFILLED';
-    } catch {
-      fetchStatus = 'REJECTED'
-    }
-  }
+    // export let name;
+  import Header from "../components/header/index.svelte";
+  import Toolbar from "../components/toolbar/index.svelte";
+  import Formula from "../components/formula/index.svelte";
+  import Table from "../components/table/index.svelte";
 </script>
 
-<h1>Welcome to SvelteKit</h1>
 
-{#if fetchStatus === 'FULFILLED'}
-<h2>Success</h2>
-{/if}
-{#if fetchStatus === 'REJECTED'}
-  <h2>Error</h2>
-{/if}
-<input type="file" bind:files>
 <template lang="pug">
-  if fetchStatus === 'FULFILLED'
-      h2 Success
-  else if fetchStatus === 'REJECTED'
-      h2 Error
-  else
-      h2 1
-  div Posts 
+  Header
+  Toolbar
+  Formula
+  Table
 </template>
 
-<style lang="scss">
-  $color: red;
+<style lang="scss" module>
+  @import "../layout/styles/index.scss";
 
-  h1 {
-    color: $color;
-  }
+  // $color: red;
 
-  div {
-    background: green;
+  // h1 {
+  //   color: $color;
+  // }
 
-    // > p {
-    //   color: #fff;
-    // }
-  }
+  // div {
+  //   background: green;
+
+  //   // > p {
+  //   //   color: #fff;
+  //   // }
+  // }
 </style>
