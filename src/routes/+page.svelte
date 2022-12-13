@@ -32,7 +32,7 @@
       var shiftY = 0;
 
       for await (const ev of dnd) {
-        
+        console.log(ev)
         const { top, left } = getCoords(ball);
         // var shiftX = ev.pageX - top;
         // var shiftY = ev.pageY - left;
@@ -61,6 +61,46 @@
         left: box.left + pageXOffset
       };
     }
+
+    var cell = document.getElementsByClassName('cell');
+    var table = document.getElementsByClassName('table')[0];
+    console.log(cell);
+    console.log(table);
+    (async () => {
+      const show = 
+        repeat(() => 
+          filter(
+            seq(
+              once(table, 'mousedown'),
+              every(
+                any(
+                  on(table, 'mousemove'),
+                  on(table, 'mouseup')
+                ),
+                onlyEvent('mousemove')
+              )
+            ),
+            onlyEvent('mousemove')
+          )
+        );
+   
+      var shiftX = 0;
+      var shiftY = 0;
+
+      for await (const ev of show) {
+        console.log(ev.currentTarget)
+        // ev.currentTarget.
+        // const { top, left } = getCoords(ball);
+        // var shiftX = ev.pageX - top;
+        // var shiftY = ev.pageY - left;
+        
+      //  ball.style.left = ev.pageX - shiftX + 'px';
+      //   ball.style.top = ev.pageY - shiftY + 'px';
+
+      }
+
+    })()
+
   };
 
 
@@ -84,12 +124,12 @@
 </template>
 
 <style lang="scss" module>
-  @import "../layout/styles/index.scss";
+  // @import "../layout/styles/index.scss";
 
   #my-box {
     position: absolute;
     z-index: 100;
-    
+
   }
   // $color: red;
 

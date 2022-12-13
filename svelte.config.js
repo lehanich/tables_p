@@ -7,7 +7,8 @@ const config = {
 	// for more information about preprocessors
 	preprocess: preprocess({
 		scss: {
-			prependData:`@import 'src/layout/styles/variables.scss';`
+			prependData:`@import 'src/layout/styles/variables.scss';
+				@import 'src/layout/styles/index.scss';`
 		}
 	}),
 
