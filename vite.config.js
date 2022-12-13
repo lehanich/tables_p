@@ -18,11 +18,11 @@ const config = {
   //   prependData: `@import 'index.scss';`, // <-- Добавим эту строку
   // },
 	css: {
-		preprocessorOptions: {
-			scss: {
-				additionalData: `@import "${pathSrc}/layout/styles/variables.scss";`
-			}
-		}
+		// preprocessorOptions: {
+		// 	scss: {
+		// 		additionalData: `@import "static/styles/variables.scss";`//${pathSrc}/layout
+		// 	}
+		// }
 	},
 	build: {
     commonjsOptions: {
