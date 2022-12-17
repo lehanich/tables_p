@@ -1,5 +1,6 @@
 import { sveltekit } from '@sveltejs/kit/vite';
 import path from "path";
+import { resolve } from 'path'
 const pathSrc = path.resolve(__dirname, "./src");
 
 /** @type {import('vite').UserConfig} */
@@ -32,6 +33,7 @@ const config = {
     },
 		rollupOptions: {
 			input: {
+				main: resolve(pathSrc, 'app.html'),
 					// main: "index.html",
 					// worker: "src/lib/"
 			}

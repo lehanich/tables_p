@@ -80,7 +80,8 @@ async function* seq (...iterables) {
   // console.dir(iterables)
   for (const i of iterables) {
     for await (const el of i) {
-      yield el;
+      console.log(el)
+      yield  el.value ? el.value : el;
     }
   }
 }
@@ -114,6 +115,10 @@ async function* every(iterables, fn){
 
 function onlyEvent(eventName) {
   return (e) => e.type === eventName ? true : false;
+}
+
+function onlyEvents(...events) {
+  return (e) => events.includes(e.type) ? true : false;
 }
 
 function filter(iterable, fn) {
@@ -195,6 +200,7 @@ export {
   repeat,
   every,
   onlyEvent,
+  onlyEvents,
   filter,
   map,
   take

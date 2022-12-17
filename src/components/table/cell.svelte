@@ -1,5 +1,9 @@
+<script>
+  export let cell;
+</script>
+
 <template lang="pug">
-  div.cell(contenteditable data-column="{$$props.index}")
+  div.cell(contenteditable data-row="{$$props.row}" data-column="{$$props.column}" bind:this='{cell}')
     slot
 </template>
 

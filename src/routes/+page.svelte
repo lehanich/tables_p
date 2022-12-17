@@ -1,12 +1,22 @@
 <script>
-  import { onMount } from 'svelte';
+  import { onMount,setContext } from 'svelte';
     // export let name;
   import Header from "../components/header/index.svelte";
   import Toolbar from "../components/toolbar/index.svelte";
   import Formula from "../components/formula/index.svelte";
   import Table from "../components/table/index.svelte";
 
-  import {repeat, filter, seq, once, any, on, every, onlyEvent } from "../lib/eventIter.js";
+  import {repeat, filter, seq, once, any, on, every, onlyEvent, onlyEvents } from "../lib/eventIter.js";
+
+  let cells
+  let show;
+  setContext("show", {
+      getShow: () => show,
+      getCells: () => cells
+    })
+
+  let table;
+
   const loadWorker = async () => {
     var ball = document.getElementById('my-box');
 
@@ -62,12 +72,12 @@
       };
     }
 
-    var cell = document.getElementsByClassName('cell');
+    // var cell = document.getElementsByClassName('cell');
     var table = document.getElementsByClassName('table')[0];
-    console.log(cell);
+    // console.log(cell);
     console.log(table);
-    (async () => {
-      const show = 
+
+     show = 
         repeat(() => 
           filter(
             seq(
@@ -80,27 +90,45 @@
                 onlyEvent('mousemove')
               )
             ),
-            onlyEvent('mousemove')
+            onlyEvents('mousedown','mousemove')
           )
         );
+    
+    // (async () => {
+    //   const show = 
+    //     repeat(() => 
+    //       filter(
+    //         seq(
+    //           once(table, 'mousedown'),
+    //           every(
+    //             any(
+    //               on(table, 'mousemove'),
+    //               on(table, 'mouseup')
+    //             ),
+    //             onlyEvent('mousemove')
+    //           )
+    //         ),
+    //         onlyEvent('mousemove')
+    //       )
+    //     );
    
-      var shiftX = 0;
-      var shiftY = 0;
+    //   var shiftX = 0;
+    //   var shiftY = 0;
 
-      for await (const ev of show) {
-        console.log(ev.currentTarget)
-        // ev.currentTarget.
-        // const { top, left } = getCoords(ball);
-        // var shiftX = ev.pageX - top;
-        // var shiftY = ev.pageY - left;
+    //   for await (const ev of show) {
+    //     console.log(ev.currentTarget)
+    //     // ev.currentTarget.
+    //     // const { top, left } = getCoords(ball);
+    //     // var shiftX = ev.pageX - top;
+    //     // var shiftY = ev.pageY - left;
         
-      //  ball.style.left = ev.pageX - shiftX + 'px';
-      //   ball.style.top = ev.pageY - shiftY + 'px';
+    //   //  ball.style.left = ev.pageX - shiftX + 'px';
+    //   //   ball.style.top = ev.pageY - shiftY + 'px';
 
-      }
+    //   }
 
-    })()
-
+    // })()
+    console.log(5,cells) //table
   };
 
 
@@ -119,7 +147,7 @@
   Header
   Toolbar
   Formula
-  Table
+  Table(bind:this="{table}" bind:cells="{cells}")
   div#my-box BALL
 </template>
 
