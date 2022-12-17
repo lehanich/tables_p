@@ -9,8 +9,24 @@ function readChunks(reader: ReadableStreamDefaultReader<Uint8Array>) {
         },
     };
 }
-export const importCSV = (files) => {
-    // eslint-disable-next-line no-useless-catch
+
+function* parseChunk(chunk: Uint8Array) {
+    const str = new TextDecoder().decode(chunk);
+
+    let cursorOpen = 0;
+    let cursorClose = 0;
+
+    while(true) {
+        cursorOpen = str.indexOf('{', cursorClose);
+        cursorClose = str.indexOf('}', cursorClose + 1);
+
+        const res = str.slice(cursorOpen, cursorClose + 1);
+
+        yield JSON.parse(res);
+    }
+}
+
+export const importCSV = (files: FileList) => {
     try {
         const formData = new FormData()
         formData.append('file', files[0])
@@ -19,10 +35,13 @@ export const importCSV = (files) => {
             body: formData
         };
 
+
         fetch('/api/parse-csv', requestOptions).then(async (response) => {
             const reader = response.body!.getReader();
             for await (const chunk of readChunks(reader)) {
-                console.log(chunk);
+                for (const res of parseChunk(chunk)) {
+                    console.log(res);
+                }
             }
         })
 
