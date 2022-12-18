@@ -1,6 +1,6 @@
-<script>
+<script lang="ts">
   import RowResize from "../ui/row-resize/index.svelte"
-  export let row;
+  export let row: HTMLDivElement;
 </script>
 
 <template lang="pug">

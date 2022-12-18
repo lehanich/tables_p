@@ -1,6 +1,6 @@
-<script>
+<script lang="ts">
   import ColResize from "../ui/col-resize/index.svelte";
-  export let cell;
+  export let cell: HTMLDivElement;
 </script>
 
 <template lang="pug">
