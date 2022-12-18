@@ -4,18 +4,6 @@ const fs = require('fs');
 const app = express();
 const formidable = require('formidable');
 
-const parseCsv = (filePath) => {
-    return new Promise((resolve, reject) => {
-        const results = []
-        fs.createReadStream(filePath)
-            .pipe(csv())
-            .on('data', (data) => results.push(data))
-            .on('end', () => resolve(results))
-            .on('error', (error) => reject(error))
-    })
-}
-
-// endpoint for parsing CSV file
 app.post('/api/parse-csv', async (req, res) => {
     try {
         const form = new formidable.IncomingForm();
@@ -26,9 +14,16 @@ app.post('/api/parse-csv', async (req, res) => {
                 return res.status(400).json({ error: err.message });
             }
 
-            parseCsv(files.file.filepath).then(data => {
-                res.json(data)
-            })
+            console.log(files.file.filepath);
+
+            fs.createReadStream(files.file.filepath)
+                .pipe(csv())
+                .on('data', (data) => {
+                    const id = Date.now().toString(36);
+                    const valueStringify = JSON.stringify({ ...data, id  });
+
+                    res.write(valueStringify);
+                });
         });
 
     } catch (error) {
