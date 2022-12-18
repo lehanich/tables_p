@@ -1,9 +1,18 @@
 <script lang="ts">
-  import { onMount } from 'svelte';
+  import { onMount, setContext } from 'svelte';
   import Row from "./row.svelte";
   import Column from "./column.svelte";
   import Cell from "./cell.svelte";
   import Selection from "../selection/index.svelte";
+  import {repeat, filter, seq, once, any, on, every, onlyEvent, onlyEvents } from "../../lib/eventIter.js";
+
+  let selectSpace: AsyncGenerator<HTMLElementEventMap>;
+  let table: DOMPoint;
+
+  setContext("show", {
+      getSelect: () => selectSpace,
+      getCells: () => cells
+  })
 
   const CODES = {
     A: 65,
@@ -20,20 +29,36 @@
 
   export const cells = new Array(20+1).fill(new Array(colsCount)); //"A".charCodeAt(0)
 
-  const loadWorker = async () => {
+  const onLoad = async () => {
     console.log(4,cells)
     console.log(cells[1][1])
     // console.log(cells[1][1].$$.context)
     // console.log(cells[1][1].$set)
     // console.log(cells[1][1].width, cells[1][1].height)
+    selectSpace = 
+        repeat(() => 
+          filter(
+            seq(
+              once(table, 'mousedown'),
+              every(
+                any(
+                  on(table, 'mousemove'),
+                  on(table, 'mouseup')
+                ),
+                onlyEvent('mousemove')
+              )
+            ),
+            onlyEvents('mousedown','mousemove')
+          )
+        );
   }
 
-  onMount(loadWorker);
+  onMount(onLoad);
   //bind:cell='{cells[index1][index2]}'
 </script>
  
 <template lang="pug">
-  div.table
+  div.table(bind:this='{table}')
     Row
       +each('cols as col, index')
         Column(bind:cell='{cells[0][index]}') {col}
@@ -41,7 +66,7 @@
       Row(index="{index1}")
         +each('cols as col, index2')
           Cell(row="{index1}" column="{col}")
-  Selection
+    Selection
 </template>
 
 <style lang="scss" module>

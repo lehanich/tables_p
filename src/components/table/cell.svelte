@@ -1,5 +1,5 @@
-<script>
-  export let cell;
+<script lang="ts">
+  export let cell: HTMLDivElement;
 </script>
 
 <template lang="pug">
