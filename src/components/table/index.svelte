@@ -5,6 +5,7 @@
   import Cell from "./cell.svelte";
   import Selection from "../selection/index.svelte";
   import {repeat, filter, seq, once, any, on, every, onlyEvent, onlyEvents } from "../../lib/eventIter.js";
+  import {data} from "../toolbar/importCSV";
 
   let selectSpace: AsyncGenerator<HTMLElementEventMap>;
   let table: DOMPoint;
@@ -27,6 +28,18 @@
   const rows = new Array(20+1);
   const cols = new Array(colsCount).fill('').map(toChar); //.map(toColumn).join('');
 
+  let state = [];
+  let headerTable = [];
+
+  data.subscribe(value => {
+    console.log(value);
+    state = value;
+  });
+
+  if (state[0]) {
+    headerTable = Object.keys(state[0]);
+  }
+
   export const cells = new Array(20+1).fill(new Array(colsCount)); //"A".charCodeAt(0)
 
   const onLoad = async () => {
@@ -35,8 +48,8 @@
     // console.log(cells[1][1].$$.context)
     // console.log(cells[1][1].$set)
     // console.log(cells[1][1].width, cells[1][1].height)
-    selectSpace = 
-        repeat(() => 
+    selectSpace =
+        repeat(() =>
           filter(
             seq(
               once(table, 'mousedown'),
@@ -56,17 +69,21 @@
   onMount(onLoad);
   //bind:cell='{cells[index1][index2]}'
 </script>
- 
+
+<!--language=Pug-->
 <template lang="pug">
   div.table(bind:this='{table}')
     Row
       +each('cols as col, index')
         Column(bind:cell='{cells[0][index]}') {col}
+    Row
+      +each('cols as col, index')
+          Cell(row="1" column="{col}" value="{headerTable[index]}")
     +each('rows as row, index1')
       Row(index="{index1}")
         +each('cols as col, index2')
-          Cell(row="{index1}" column="{col}")
-    Selection
+          Cell(row="{index1}" column="{col}" value="{state[index1]?.[headerTable[index2]]}")
+  Selection
 </template>
 
 <style lang="scss" module>
