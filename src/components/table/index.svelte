@@ -4,14 +4,18 @@
   import Column from "./column.svelte";
   import Cell from "./cell.svelte";
   import Selection from "../selection/index.svelte";
+  import SelectionMoveView from "../selection/moveSelection.svelte";
   import {repeat, filter, seq, once, any, on, every, onlyEvent, onlyEvents } from "../../lib/eventIter.js";
 
   let selectSpace: AsyncGenerator<HTMLElementEventMap>;
   let table: DOMPoint;
 
+  let borderCover;
+
   setContext("show", {
-      getSelect: () => selectSpace,
-      getCells: () => cells
+    getSelect: () => selectSpace,
+    getCells: () => cells,
+    getTable: () => table
   })
 
   const CODES = {
@@ -66,7 +70,8 @@
       Row(index="{index1}")
         +each('cols as col, index2')
           Cell(row="{index1}" column="{col}")
-    Selection
+    Selection(bind:borderCover='{borderCover}')
+  SelectionMoveView(borderCover='{borderCover}')
 </template>
 
 <style lang="scss" module>

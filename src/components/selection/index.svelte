@@ -6,11 +6,11 @@
   import SelectionBorderView from "./selectionBorder.svelte";
   import SelectionCellView from "./selectionCell.svelte";
   import SelectionButtonView from "./selectionButton.svelte";
-  import SelectionMoveView from "./moveSelection.svelte";
+  // import SelectionMoveView from "./moveSelection.svelte";
 
-  const { getSelect, getCells } = getContext("show");
+  const { getSelect, getCells, getTable } = getContext("show");
   
-  let borderCover;
+  export let borderCover;
   let selWidth = 0
   let selHeight = 0;
   let selTop = 0;
@@ -44,15 +44,14 @@
         }
 
         if(getSelect() && typeof getSelect()[Symbol.asyncIterator] === 'function') {
-          var table = document.getElementsByClassName('table')[0];
-          console.dir(table)
-          let offsetTop = table.offsetTop;
-          let offsetLeft = table.offsetLeft;
+          // var table = document.getElementsByClassName('table')[0];
+          // console.dir(table)
+          let offsetTop = getTable().offsetTop;
+          let offsetLeft = getTable().offsetLeft;
           let rows = new Array();
           let i = 0;
-          for (const child of table.children) {
-            console.log(child);
-            console.log(child.offsetTop + offsetTop,child.offsetHeight, child.clientHeight)
+
+          for (const child of getTable().children) {
             if(child.classList.contains("row")) {
               rows[i] = child;
               i++
@@ -204,7 +203,7 @@
   SelectionBorderView.range-border(selSpace='{selSpace}' bind:borderCover='{borderCover}')
   SelectionCellView.range-border(selCell='{selCell}' bind:borderCover='{borderCover}')
   SelectionButtonView(selSpace='{selSpace}')
-  SelectionMoveView(borderCover='{borderCover}')
+
 </template>
 
 <style lang="scss" module>
