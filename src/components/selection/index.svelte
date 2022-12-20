@@ -1,33 +1,51 @@
 <script>
-  import { onMount, getContext } from 'svelte';
+  import { onMount, getContext, afterUpdate,createEventDispatcher } from 'svelte';
 	import { select_option } from 'svelte/internal';
   import {repeat, filter, seq, once, any, on, every, onlyEvent, onlyEvents } from "../../lib/eventIter.js";
   import SelectionAreaView from "./selectionArea.svelte";
   import SelectionBorderView from "./selectionBorder.svelte";
   import SelectionCellView from "./selectionCell.svelte";
   import SelectionButtonView from "./selectionButton.svelte";
-  import SelectionMoveView from "./moveSelection.svelte";
+  // import SelectionMoveView from "./moveSelection.svelte";
 
-  const { getSelect, getCells } = getContext("show");
+  const { getSelect, getCells, getTable } = getContext("show");
+
+  const dispatch = createEventDispatcher();
   
-  let borderCover;
+  export let borderCover;
   let selWidth = 0
   let selHeight = 0;
   let selTop = 0;
   let selLeft = 0;
+  let selCellLeft = 0;
+  let selCellTop = 0;
+  let selCellWidth = 0;
+  let selCellHeight = 0;
+
+
 
   $: selCell = {
-    height:0,
-    width:0,
-    top:0,
-    left:0
+    height: selCellHeight,
+    width: selCellWidth,
+    top: $$props.deltaCols[1] ? $$props.deltaCols[1] + selCellTop : selCellTop ,
+    left: $$props.deltaCols[0] ? $$props.deltaCols[0] + selCellLeft : selCellLeft
   }
   $: selSpace = {
     height: selHeight,
     width: selWidth,
-    top: selTop,
-    left: selLeft
+    top: $$props.deltaCols[1] ? $$props.deltaCols[1] +  selTop : selTop,
+    left: $$props.deltaCols[0] ? $$props.deltaCols[0] + selLeft : selLeft
   }
+
+  afterUpdate(() => {
+    console.log("4444 1", $$props.deltaCols)
+    console.log("444 6", borderCover)
+    // selLeft += $$props.deltaCols[0]
+    // selTop += $$props.deltaCols[1]
+    // selCellLeft += $$props.deltaCols[0]
+    // selCellTop +=  $$props.deltaCols[1]
+    console.log("444 9", selCell,selSpace)
+  })
 
   const loadWorker = async () => {
     // (async () => {
@@ -44,15 +62,12 @@
         }
 
         if(getSelect() && typeof getSelect()[Symbol.asyncIterator] === 'function') {
-          var table = document.getElementsByClassName('table')[0];
-          console.dir(table)
-          let offsetTop = table.offsetTop;
-          let offsetLeft = table.offsetLeft;
+          let offsetTop = getTable().offsetTop;
+          let offsetLeft = getTable().offsetLeft;
+
           let rows = new Array();
           let i = 0;
-          for (const child of table.children) {
-            console.log(child);
-            console.log(child.offsetTop + offsetTop,child.offsetHeight, child.clientHeight)
+          for (const child of getTable().children) {
             if(child.classList.contains("row")) {
               rows[i] = child;
               i++
@@ -62,8 +77,10 @@
           let select = Array(2).fill(Array(2)); // first last
           let xCursor = cells[0][Symbol.iterator]();
           let yCursor = cells[Symbol.iterator]();
-          let first 
-          (async() => {for await (const ev of getSelect()) {
+          let first;
+
+        (async() => {
+          for await (const ev of getSelect()) {
             console.log(ev) //ev.currentTarget
 
             let xEl = xCursor.next();
@@ -71,16 +88,18 @@
 
             if((ev.value && ev.value.type === "mousedown") || ev.type === "mousedown") 
             {
+              dispatch('nullCoordinates', { coords: [0,0] });
               let i = 0;
               for (let xEl of cells[0]) {
-                // console.log(ev.pageX , xEl.offsetLeft , ev.pageX , xEl.offsetLeft + xEl.offsetWidth)
+                // console.log("555",ev.pageX , xEl.offsetLeft ,xEl.offsetLeft + xEl.offsetWidth)
                 if(ev.pageX > xEl.offsetLeft && ev.pageX < xEl.offsetLeft + xEl.offsetWidth) {
                   //stop
-                  console.dir( xEl)
+                  // console.log( "555", i, xEl)
+                  // console.log("555",ev.pageX , xEl.offsetLeft ,xEl.offsetLeft + xEl.offsetWidth)
                   select[0][0] = i
 
-                  selCell.left = xEl.offsetLeft
-                  selCell.width = xEl.offsetWidth
+                  selCellLeft = xEl.offsetLeft
+                  selCellWidth = xEl.offsetWidth
 
                   selLeft = xEl.offsetLeft
                   selWidth = xEl.offsetWidth
@@ -105,8 +124,8 @@
                   console.dir( yEl)
                   // console.dir(rows)
                   select[0][1] = i
-                  selCell.top =yEl.offsetTop ;
-                  selCell.height = yEl.offsetHeight
+                  selCellTop =yEl.offsetTop ;
+                  selCellHeight = yEl.offsetHeight
 
                   selTop =yEl.offsetTop ;
                   selHeight = yEl.offsetHeight
@@ -118,19 +137,22 @@
             } else {
               // console.log(ev)
             }
-            // console.log(select)
-            if(select[0][0] && select[0][1] &&  ev.type === "mousemove") {
+            console.log(555,select)
+            if(select[0][0] !== null && select[0][0] !== undefined &&
+            select[0][1] !== null && select[0][1] !== undefined &&  ev.type === "mousemove") {
               let firstX = cells[0][select[0][0]];
               let firstY = rows[select[0][1]]
               selWidth = firstX.offsetWidth
               selHeight = firstY.offsetHeight
 
+              console.log("555",ev.pageX, firstX.offsetLeft)
               if(ev.pageX > firstX.offsetLeft) {
                 // console.log(ev)
+                
                 for(let i = select[0][0] ; i < cells[0].length; i++ ) {
                   xEl = cells[0][i];
                    selLeft = firstX.offsetLeft
-                  //  console.log("selLeft", xEl)
+                   console.log("555 ", ev.pageX , xEl.offsetLeft ,  firstX.offsetLeft + selWidth)
                   if(ev.pageX > xEl.offsetLeft && ev.pageX > firstX.offsetLeft + selWidth) {
                     selWidth += xEl.offsetWidth;
                   }
@@ -204,7 +226,7 @@
   SelectionBorderView.range-border(selSpace='{selSpace}' bind:borderCover='{borderCover}')
   SelectionCellView.range-border(selCell='{selCell}' bind:borderCover='{borderCover}')
   SelectionButtonView(selSpace='{selSpace}')
-  SelectionMoveView(borderCover='{borderCover}')
+
 </template>
 
 <style lang="scss" module>

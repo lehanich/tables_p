@@ -4,15 +4,47 @@
   import Column from "./column.svelte";
   import Cell from "./cell.svelte";
   import Selection from "../selection/index.svelte";
+  import SelectionMoveView from "../selection/moveSelection.svelte";
   import {repeat, filter, seq, once, any, on, every, onlyEvent, onlyEvents } from "../../lib/eventIter.js";
   import {data} from "../toolbar/importCSV";
 
   let selectSpace: AsyncGenerator<HTMLElementEventMap>;
   let table: DOMPoint;
 
+  let borderCover;
+
+  let deltaCols: [number, number] = [0, 0];
+
+  function nullCoordinates(event) {
+    deltaCols = [0,0];
+    console.log("444 11 null coords",event.detail.coords)
+  }
+  function nullCoordinates2(event) {
+    // deltaCols = [...event.detail.coords];
+
+    // deltaCols[0] += event.detail.coords[0];
+    // deltaCols[1] += event.detail.coords[1];
+
+    // borderCover.left += deltaCols[0] //event.detail.coords[0]
+    // borderCover.top += deltaCols[1] //event.detail.coords[1]
+    console.log("444 11 null coords", event.detail.coords) //borderCover
+  }
+
+  function handleCoords(event) {
+    console.log("444 11", event.detail.coords)
+    console.log("444 11 ++",deltaCols)
+		// deltaCols = [...event.detail.coords];
+    deltaCols[0] += event.detail.coords[0];
+    deltaCols[1] += event.detail.coords[1];
+    borderCover.left += event.detail.coords[0]
+    borderCover.top += event.detail.coords[1]
+    console.log("444 11 --",deltaCols)
+	}
+
   setContext("show", {
-      getSelect: () => selectSpace,
-      getCells: () => cells
+    getSelect: () => selectSpace,
+    getCells: () => cells,
+    getTable: () => table
   })
 
   const CODES = {
@@ -83,7 +115,10 @@
       Row(index="{index1}")
         +each('cols as col, index2')
           Cell(row="{index1}" column="{col}" value="{state[index1]?.[headerTable[index2]]}")
-  Selection
+    Selection(bind:borderCover='{borderCover}' deltaCols="{deltaCols}" on:nullCoordinates='{nullCoordinates}')
+  SelectionMoveView(borderCover='{borderCover}' on:newSelectCoords='{handleCoords}' on:nullCoordinates='{nullCoordinates2}')
+>
+
 </template>
 
 <style lang="scss" module>

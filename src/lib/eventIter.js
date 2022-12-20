@@ -80,7 +80,7 @@ async function* seq (...iterables) {
   // console.dir(iterables)
   for (const i of iterables) {
     for await (const el of i) {
-      console.log(el)
+      // console.log(el)
       yield  el.value ? el.value : el;
     }
   }
@@ -106,6 +106,17 @@ async function* repeat(fn) {
 async function* every(iterables, fn){
   for await(const event of iterables){
     if(!event || !fn(event)) {
+      return event
+    }
+
+    yield event
+  }
+}
+
+async function* every2(iterables, fn){
+  for await(const event of iterables){
+    if(!event || !fn(event)) {
+      yield event
       break;
     }
 
@@ -131,7 +142,7 @@ function filter(iterable, fn) {
     async next() {
       let el = await iter.next();
 
-      console.log(1,el);
+      // console.log(1,el);
 
       if (el.done || !el.value){
         return this.return();
@@ -199,6 +210,7 @@ export {
   any,
   repeat,
   every,
+  every2,
   onlyEvent,
   onlyEvents,
   filter,
