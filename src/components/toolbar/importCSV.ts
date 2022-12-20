@@ -1,3 +1,6 @@
+import { writable } from 'svelte/store';
+
+
 function readChunks(reader: ReadableStreamDefaultReader<Uint8Array>) {
     return {
         async* [Symbol.asyncIterator]() {
@@ -26,7 +29,9 @@ function* parseChunk(chunk: Uint8Array) {
     }
 }
 
-export const importCSV = (files: FileList) => {
+export const data = writable([]);
+
+export function importCSV (files: FileList) {
     try {
         const formData = new FormData()
         formData.append('file', files[0])
@@ -40,7 +45,9 @@ export const importCSV = (files: FileList) => {
             const reader = response.body!.getReader();
             for await (const chunk of readChunks(reader)) {
                 for (const res of parseChunk(chunk)) {
-                    console.log(res);
+                    // console.log(res);
+                    // @ts-ignore
+                    data.update(arr => [...arr, res]);
                 }
             }
         })

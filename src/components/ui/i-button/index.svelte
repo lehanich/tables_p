@@ -1,5 +1,6 @@
+<!--language=Pug-->
 <template lang="pug">
-  div.button
+  div.button(on:click="{$$props.click}")
     i.materialIcons
       slot
 </template>
