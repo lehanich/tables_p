@@ -34,8 +34,7 @@
   const onLoad = async () => {
         console.log(activeSide)
         // var activeSide = document.getElementById('test');
-      let activeSideActions = 
-        repeat(() => 
+      let activeSideActions = repeat(() => 
           filter(
             seq(
               once(activeSide, 'mousedown'),
@@ -159,7 +158,10 @@
 </script>
 
 <template lang="pug">
-  div.selection-border-cover(bind:this='{activeSide}' style="{borderCoverStyle}" id="test")
+  div.selection-border-cover(
+    bind:this='{activeSide}'
+    style="{borderCoverStyle}"
+  )
 </template>
 
 <style lang="scss">
