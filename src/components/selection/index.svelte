@@ -1,5 +1,5 @@
 <script>
-  import { onMount, getContext, afterUpdate } from 'svelte';
+  import { onMount, getContext, afterUpdate,createEventDispatcher } from 'svelte';
 	import { select_option } from 'svelte/internal';
   import {repeat, filter, seq, once, any, on, every, onlyEvent, onlyEvents } from "../../lib/eventIter.js";
   import SelectionAreaView from "./selectionArea.svelte";
@@ -9,6 +9,8 @@
   // import SelectionMoveView from "./moveSelection.svelte";
 
   const { getSelect, getCells, getTable } = getContext("show");
+
+  const dispatch = createEventDispatcher();
   
   export let borderCover;
   let selWidth = 0
@@ -25,23 +27,24 @@
   $: selCell = {
     height: selCellHeight,
     width: selCellWidth,
-    top: selCellTop,
-    left: selCellLeft
+    top: $$props.deltaCols[1] ? $$props.deltaCols[1] + selCellTop : selCellTop ,
+    left: $$props.deltaCols[0] ? $$props.deltaCols[0] + selCellLeft : selCellLeft
   }
   $: selSpace = {
     height: selHeight,
     width: selWidth,
-    top: selTop,
-    left: selLeft
+    top: $$props.deltaCols[1] ? $$props.deltaCols[1] +  selTop : selTop,
+    left: $$props.deltaCols[0] ? $$props.deltaCols[0] + selLeft : selLeft
   }
 
   afterUpdate(() => {
-    console.log("4444 1", $$props)
-
-    selLeft += $$props.deltaCols[0]
-    selTop += $$props.deltaCols[1]
-    selCellLeft += $$props.deltaCols[0]
-    selCellTop +=  $$props.deltaCols[1]
+    console.log("4444 1", $$props.deltaCols)
+    console.log("444 6", borderCover)
+    // selLeft += $$props.deltaCols[0]
+    // selTop += $$props.deltaCols[1]
+    // selCellLeft += $$props.deltaCols[0]
+    // selCellTop +=  $$props.deltaCols[1]
+    console.log("444 9", selCell,selSpace)
   })
 
   const loadWorker = async () => {
@@ -85,12 +88,14 @@
 
             if((ev.value && ev.value.type === "mousedown") || ev.type === "mousedown") 
             {
+              dispatch('nullCoordinates', { coords: [0,0] });
               let i = 0;
               for (let xEl of cells[0]) {
-                // console.log(ev.pageX , xEl.offsetLeft , ev.pageX , xEl.offsetLeft + xEl.offsetWidth)
+                // console.log("555",ev.pageX , xEl.offsetLeft ,xEl.offsetLeft + xEl.offsetWidth)
                 if(ev.pageX > xEl.offsetLeft && ev.pageX < xEl.offsetLeft + xEl.offsetWidth) {
                   //stop
-                  console.dir( xEl)
+                  // console.log( "555", i, xEl)
+                  // console.log("555",ev.pageX , xEl.offsetLeft ,xEl.offsetLeft + xEl.offsetWidth)
                   select[0][0] = i
 
                   selCellLeft = xEl.offsetLeft
@@ -132,19 +137,22 @@
             } else {
               // console.log(ev)
             }
-            // console.log(select)
-            if(select[0][0] && select[0][1] &&  ev.type === "mousemove") {
+            console.log(555,select)
+            if(select[0][0] !== null && select[0][0] !== undefined &&
+            select[0][1] !== null && select[0][1] !== undefined &&  ev.type === "mousemove") {
               let firstX = cells[0][select[0][0]];
               let firstY = rows[select[0][1]]
               selWidth = firstX.offsetWidth
               selHeight = firstY.offsetHeight
 
+              console.log("555",ev.pageX, firstX.offsetLeft)
               if(ev.pageX > firstX.offsetLeft) {
                 // console.log(ev)
+                
                 for(let i = select[0][0] ; i < cells[0].length; i++ ) {
                   xEl = cells[0][i];
                    selLeft = firstX.offsetLeft
-                  //  console.log("selLeft", xEl)
+                   console.log("555 ", ev.pageX , xEl.offsetLeft ,  firstX.offsetLeft + selWidth)
                   if(ev.pageX > xEl.offsetLeft && ev.pageX > firstX.offsetLeft + selWidth) {
                     selWidth += xEl.offsetWidth;
                   }

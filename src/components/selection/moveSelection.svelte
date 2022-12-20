@@ -7,6 +7,7 @@
   let activeSide: HTMLDivElement
 
   let deltaCols: [number, number] = [0, 0];
+  // let deltaColsBuf: [number, number] = [0, 0];
 
   const { getTable, getCells } = getContext("show");
 
@@ -28,7 +29,7 @@
     top:  ${mousedown ? borderCoverMove?.top : borderCover.top}px;
     width:  ${mousedown ? borderCoverMove?.width : borderCover.width}px;
     height:  ${mousedown ? borderCoverMove?.height : borderCover.height}px;
-    border: 1px solid black;
+    //border: 1px solid black;
   `
   $:  borderCoverMove = {
     left: moveX ? moveX : borderCover.width < borderCover.height ? borderCover.left - 102 : borderCover.left - 150,
@@ -47,29 +48,17 @@
       cursor: "-webkit-grab"
     };
 
-    borderCover.left += deltaCols[0] ? deltaCols[0] : 0;
-    borderCover.top +=  deltaCols[1] ? deltaCols[1] : 0;
+    // borderCover.left += deltaColsBuf[0] ? deltaColsBuf[0] : 0;
+    // borderCover.top +=  deltaColsBuf[1] ? deltaColsBuf[1] : 0;
+    // deltaColsBuf = [0,0]
 
+    // console.log("444 4", borderCover)
     if (borderCover.width < borderCover.height) {
       borderCover.width = 5;
       borderCover.left = borderCover.left - 2;
-    //   borderCoverMove = {
-    //     left: borderCover.left - 102,
-    //     top: borderCover.top - 150,
-    //     width: 205,
-    //     height: borderCover.height + 301,
-    //     cursor: "-webkit-grabbing"
-    //   };
     } else {
       borderCover.height = 5;
       borderCover.top = borderCover.top - 2;
-    //   borderCoverMove = {
-    //     left: borderCover.left - 150,
-    //     top: borderCover.top - 102,
-    //     width: borderCover.width + 301,
-    //     height: 205,
-    //     cursor: "-webkit-grabbing"
-    //   };
     }
 
     // borderCoverMove.left = moveX ? moveX : borderCoverMove.left;
@@ -144,7 +133,11 @@
               yOffset = ev.pageY - borderCoverMove.top;
               console.log(xOffset, yOffset)
 
+              dispatch('nullCoordinates', { coords: [...deltaCols] });
+              // dispatch('nullCoordinates', { coords: [ borderCover.left,  borderCover.top] });
+              console.log("444 11 old offset ", deltaCols, borderCover.left, borderCover.top)
               deltaCols = [0,0]
+              
 
               for (let xEl of cells[0]) {
                 console.log(ev.pageX , xEl.offsetLeft , ev.pageX , xEl.offsetLeft + xEl.offsetWidth)
@@ -165,7 +158,7 @@
                   console.dir( yEl)
                   // console.dir(rows)
                   select[0][1] = i
-                  console.log("click y ", yEl.offsetTop)
+                  console.log("click y 111 9 ",i, yEl.offsetTop)
                 }
                 i++
               }
@@ -173,7 +166,8 @@
             
             console.log(2, select[0]);
 
-            if (select[0][0] && select[0][1] && ev.type === "mousemove") {
+            if (select[0][0] !== null && select[0][0] !== undefined &&
+            select[0][1] !== null && select[0][1] !== undefined && ev.type === "mousemove") {
               let firstX = cells[0][select[0][0]];
               let firstY = rows[select[0][1]]
 
@@ -235,7 +229,7 @@
                   // firstY.offsetTop + firstY.offsetHeight + offsetTop)
                   if(ev.pageY > yEl.offsetTop + offsetTop && ev.pageY < yEl.offsetTop + yEl.offsetHeight + offsetTop) {
                     // selHeight += yEl.offsetHeight;
-                    console.log("111 8",yEl.offsetTop)
+                    console.log("111 9 8",yEl.offsetTop,firstY.offsetTop,yEl.offsetTop -  firstY.offsetTop)
                     deltaCols[1] = yEl.offsetTop -  firstY.offsetTop
                   }
                 }
@@ -245,7 +239,7 @@
                   yEl = rows[i];
                   // console.log(ev.pageY , yEl.offsetTop + offsetTop + yEl.offsetHeight)
                   if(ev.pageY > yEl.offsetTop + offsetTop && ev.pageY < yEl.offsetTop + yEl.offsetHeight + offsetTop) {
-                      console.log("111 9",yEl.offsetTop)
+                      console.log("111 9 9",yEl.offsetTop, yEl.offsetTop -  firstY.offsetTop)
                       deltaCols[1] = yEl.offsetTop -  firstY.offsetTop
                     // selHeight += yEl.offsetHeight;
 
@@ -272,13 +266,15 @@
               
               moveX = null;
               moveY = null;
+              console.log("111 922 ",deltaCols)
               dispatch('newSelectCoords', { coords: [...deltaCols] });
               // dispatch('newSelectCoords', { coords: [0,0] });
-              
-              borderCover.left += deltaCols[0] ? deltaCols[0] : 0;
-              borderCover.top +=  deltaCols[1] ? deltaCols[1] : 0;
 
-              deltaCols = [0,0]
+              // borderCover.left += deltaCols[0] ? deltaCols[0] : 0;
+              // borderCover.top +=  deltaCols[1] ? deltaCols[1] : 0;
+
+              // deltaColsBuf = [...deltaCols]
+              // deltaCols = [0,0]
               mousedown = false;
             }
           }

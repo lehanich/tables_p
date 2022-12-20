@@ -7,7 +7,7 @@
   export let borderCover;
 
   afterUpdate(() => {
-    console.log($$props)
+    console.log("444 8",$$props, borderCover)
     selCell = {...$$props.selCell};
   });
 
