@@ -117,8 +117,6 @@
           Cell(row="{index1}" column="{col}" value="{state[index1]?.[headerTable[index2]]}")
     Selection(bind:borderCover='{borderCover}' deltaCols="{deltaCols}" on:nullCoordinates='{nullCoordinates}')
   SelectionMoveView(borderCover='{borderCover}' on:newSelectCoords='{handleCoords}' on:nullCoordinates='{nullCoordinates2}')
->
-
 </template>
 
 <style lang="scss" module>
