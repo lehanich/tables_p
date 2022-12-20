@@ -1,5 +1,5 @@
 <script>
-  import { onMount, getContext } from 'svelte';
+  import { onMount, getContext, afterUpdate } from 'svelte';
 	import { select_option } from 'svelte/internal';
   import {repeat, filter, seq, once, any, on, every, onlyEvent, onlyEvents } from "../../lib/eventIter.js";
   import SelectionAreaView from "./selectionArea.svelte";
@@ -15,12 +15,18 @@
   let selHeight = 0;
   let selTop = 0;
   let selLeft = 0;
+  let selCellLeft = 0;
+  let selCellTop = 0;
+  let selCellWidth = 0;
+  let selCellHeight = 0;
+
+
 
   $: selCell = {
-    height:0,
-    width:0,
-    top:0,
-    left:0
+    height: selCellHeight,
+    width: selCellWidth,
+    top: selCellTop,
+    left: selCellLeft
   }
   $: selSpace = {
     height: selHeight,
@@ -28,6 +34,15 @@
     top: selTop,
     left: selLeft
   }
+
+  afterUpdate(() => {
+    console.log("4444 1", $$props)
+
+    selLeft += $$props.deltaCols[0]
+    selTop += $$props.deltaCols[1]
+    selCellLeft += $$props.deltaCols[0]
+    selCellTop +=  $$props.deltaCols[1]
+  })
 
   const loadWorker = async () => {
     // (async () => {
@@ -44,13 +59,11 @@
         }
 
         if(getSelect() && typeof getSelect()[Symbol.asyncIterator] === 'function') {
-          // var table = document.getElementsByClassName('table')[0];
-          // console.dir(table)
           let offsetTop = getTable().offsetTop;
           let offsetLeft = getTable().offsetLeft;
+
           let rows = new Array();
           let i = 0;
-
           for (const child of getTable().children) {
             if(child.classList.contains("row")) {
               rows[i] = child;
@@ -61,8 +74,10 @@
           let select = Array(2).fill(Array(2)); // first last
           let xCursor = cells[0][Symbol.iterator]();
           let yCursor = cells[Symbol.iterator]();
-          let first 
-          (async() => {for await (const ev of getSelect()) {
+          let first;
+
+        (async() => {
+          for await (const ev of getSelect()) {
             console.log(ev) //ev.currentTarget
 
             let xEl = xCursor.next();
@@ -78,8 +93,8 @@
                   console.dir( xEl)
                   select[0][0] = i
 
-                  selCell.left = xEl.offsetLeft
-                  selCell.width = xEl.offsetWidth
+                  selCellLeft = xEl.offsetLeft
+                  selCellWidth = xEl.offsetWidth
 
                   selLeft = xEl.offsetLeft
                   selWidth = xEl.offsetWidth
@@ -104,8 +119,8 @@
                   console.dir( yEl)
                   // console.dir(rows)
                   select[0][1] = i
-                  selCell.top =yEl.offsetTop ;
-                  selCell.height = yEl.offsetHeight
+                  selCellTop =yEl.offsetTop ;
+                  selCellHeight = yEl.offsetHeight
 
                   selTop =yEl.offsetTop ;
                   selHeight = yEl.offsetHeight

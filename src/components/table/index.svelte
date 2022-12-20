@@ -12,6 +12,13 @@
 
   let borderCover;
 
+  let deltaCols: [number, number] = [0, 0];
+
+  function handleCoords(event) {
+    console.log("444", event.detail.coords)
+		deltaCols = [...event.detail.coords];
+	}
+
   setContext("show", {
     getSelect: () => selectSpace,
     getCells: () => cells,
@@ -70,8 +77,8 @@
       Row(index="{index1}")
         +each('cols as col, index2')
           Cell(row="{index1}" column="{col}")
-    Selection(bind:borderCover='{borderCover}')
-  SelectionMoveView(borderCover='{borderCover}')
+    Selection(bind:borderCover='{borderCover}' deltaCols="{deltaCols}")
+  SelectionMoveView(borderCover='{borderCover}' on:newSelectCoords='{handleCoords}')
 </template>
 
 <style lang="scss" module>
