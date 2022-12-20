@@ -5,7 +5,7 @@
   import Cell from "./cell.svelte";
   import Selection from "../selection/index.svelte";
   import SelectionMoveView from "../selection/moveSelection.svelte";
-  import {repeat, filter, seq, once, any, on, every, onlyEvent, onlyEvents } from "../../lib/eventIter.js";
+  import {repeat, filter, seq, once, any, on, every, onlyEvent, onlyEvents } from "../../lib/eventIter.ts";
   import {data} from "../toolbar/importCSV";
 
   let selectSpace: AsyncGenerator<HTMLElementEventMap>;

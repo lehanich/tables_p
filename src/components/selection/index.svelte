@@ -1,7 +1,7 @@
 <script>
   import { onMount, getContext, afterUpdate,createEventDispatcher } from 'svelte';
 	import { select_option } from 'svelte/internal';
-  import {repeat, filter, seq, once, any, on, every, onlyEvent, onlyEvents } from "../../lib/eventIter.js";
+  import {repeat, filter, seq, once, any, on, every, onlyEvent, onlyEvents } from "../../lib/eventIter.ts";
   import SelectionAreaView from "./selectionArea.svelte";
   import SelectionBorderView from "./selectionBorder.svelte";
   import SelectionCellView from "./selectionCell.svelte";
