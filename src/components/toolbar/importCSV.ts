@@ -24,12 +24,20 @@ function* parseChunk(chunk: Uint8Array) {
         cursorClose = str.indexOf('}', cursorClose + 1);
 
         const res = str.slice(cursorOpen, cursorClose + 1);
-
-        yield JSON.parse(res);
+        console.log("-",res.replace(/(?:\s)/ig,''),"-")
+        try {
+            yield JSON.parse(res);
+        } catch(e) {
+            console.log(e)
+            return {}
+        }
     }
 }
 
-export const data = writable([]);
+// export const data = writable(new Array(20+1).fill(new Array(26)));
+export const data = writable([[],[],[],
+    [],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],
+  ]);
 
 export function importCSV (files: FileList) {
     try {
@@ -44,8 +52,9 @@ export function importCSV (files: FileList) {
         fetch('/api/parse-csv', requestOptions).then(async (response) => {
             const reader = response.body!.getReader();
             for await (const chunk of readChunks(reader)) {
+                console.log(chunk)
                 for (const res of parseChunk(chunk)) {
-                    // console.log(res);
+                    console.log(res);
                     // @ts-ignore
                     data.update(arr => [...arr, res]);
                 }

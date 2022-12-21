@@ -6,7 +6,7 @@
   import Selection from "../selection/index.svelte";
   import SelectionMoveView from "../selection/moveSelection.svelte";
   import {repeat, filter, seq, once, any, on, every, onlyEvent, onlyEvents } from "../../lib/eventIter.ts";
-  import {data} from "../toolbar/importCSV";
+  // import {data} from "../toolbar/importCSV";
 
   let selectSpace: AsyncGenerator<HTMLElementEventMap>;
   let table: DOMPoint;
@@ -57,42 +57,48 @@
   }
 
   const colsCount = CODES.Z - CODES.A + 1;
-  const rows = [] //new Array(20+1);
-  for(let i=0; i< 21; i++) { rows.push("")}
+  const rows1 = new Array(20+1);
+  // const cols1 = new Array(colsCount).fill('').map(toChar); //.map(toColumn).join('');
+  const cols1 =  new Array(colsCount).fill('').map(toChar);
+  // cols1.fill('').map(toChar);
 
-  const cols = [] //new Array(colsCount).fill('').map(toChar); //.map(toColumn).join('');
-  for(let i=0; i< colsCount; i++) { cols.push(toChar(cols,i))}
-  console.log(cols)
-  let state //= new Array(20+1).fill(new Array(26));// [];
-  // let state = [
-  //   ["John", "john@example.com", "(353) 01 222 3333"],
-  //   ["Sarah", "sarah@gmail.com", "(01) 22 888 4444"],
-  //   ["Afshin", "afshin@mail.com", "(353) 22 87 8356"]
-  // ]
+  let state2 =  new Array(20+1).fill([]);// [];
+  let state = [
+    [],
+    [],
+    [],
+    [],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],
+  ]
   let headerTable = [];
 
-  data.subscribe(value => {
-    console.log(value);
-    state = value;
-  });
+  // data.subscribe(value => {
+  //   console.log(value);
+  //   state = value;
+  // });
+
+  let data = [
+    ["John", "john@example.com", "(353) 01 222 3333"],
+    ["Sarah", "sarah@gmail.com", "(01) 22 888 4444"],
+    ["Afshin", "afshin@mail.com", "(353) 22 87 8356"],
+    [],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],
+  ]
+  let rows = [0,1,2];
+  let cols = [0,1,2]
 
   afterUpdate(() => {
-    console.log(state);
+    console.log(data);
     console.log(cells)
+    console.dir(rows1)
+    console.dir(cols1)
+    console.dir(state)
+    console.dir(state2)
   })
 
   if (state[0]) {
     headerTable = Object.keys(state[0]);
   }
 
-  export const cells = [] //new Array(20+1).fill(new Array(colsCount)); //"A".charCodeAt(0)
-  for(let i=0; i< 21; i++) {
-    cells.push([]);
-    // cells[i].push([]);
-    // for(let j=0; j< colsCount; j++) {
-    //   cells[i][j] = "";
-    // }
-  }
+  export const cells = new Array(20+1).fill(new Array(colsCount)); //"A".charCodeAt(0)
 
   const onLoad = async () => {
     await tick()
@@ -125,25 +131,16 @@
 
 <!--language=Pug-->
 <template lang="pug">
-  div.table(bind:this='{table}')
-    Row
-      +each('cols as col, index (1000 + index)')
-        Column(bind:cell='{cells[0][index]}') {col}
-    Row
-      +each('cols as col, index (2000 + index)')
-          Cell(row="1" column="{col}" value="{headerTable[index]}")
+  div.table
+
     +each('rows as row, index1 (3000 + index1)')
       Row(index="{index1}")
-        +each('cols as col, index2 (4000 + index2)')
+        +each('cols1 as col, index2 (4000 + index2)')
           Cell(
-            row="{index1}"
-            column="{index2}"
-            bind:html='{state[index1][index2]}'
-            bind:cell='{cells[index1][index2]}'
+            bind:html='{state2[index1][index2]}'
+           
           )
 
-    Selection(bind:borderCover='{borderCover}' deltaCols="{deltaCols}" on:nullCoordinates='{nullCoordinates}')
-  SelectionMoveView(borderCover='{borderCover}' on:newSelectCoords='{handleCoords}' on:nullCoordinates='{nullCoordinates2}')
 </template>
 <!-- 
 <template>
