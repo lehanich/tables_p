@@ -1,5 +1,7 @@
 <script lang="ts">
   import { onMount, setContext, afterUpdate, tick } from 'svelte';
+  import {data as state } from "../toolbar/importCSV";
+  import Eventbus from '../base/EventBus.svelte';
   import Row from "./row.svelte";
   import Column from "./column.svelte";
   import Cell from "./cell.svelte";
@@ -63,7 +65,7 @@
   const cols = [] //new Array(colsCount).fill('').map(toChar); //.map(toColumn).join('');
   for(let i=0; i< colsCount; i++) { cols.push(toChar(cols,i))}
   console.log(cols)
-  let state //= new Array(20+1).fill(new Array(26));// [];
+  // let state //= new Array(20+1).fill(new Array(26));// [];
   // let state = [
   //   ["John", "john@example.com", "(353) 01 222 3333"],
   //   ["Sarah", "sarah@gmail.com", "(01) 22 888 4444"],
@@ -71,18 +73,18 @@
   // ]
   let headerTable = [];
 
-  data.subscribe(value => {
-    console.log(value);
-    state = value;
-  });
+  // data.subscribe(value => {
+  //   console.log(value);
+  //   state = value;
+  // });
 
   afterUpdate(() => {
-    console.log(state);
+    console.log($state);
     console.log(cells)
   })
 
-  if (state[0]) {
-    headerTable = Object.keys(state[0]);
+  if ($state[0]) {
+    headerTable = Object.keys($state[0]);
   }
 
   export const cells = [] //new Array(20+1).fill(new Array(colsCount)); //"A".charCodeAt(0)
@@ -125,25 +127,26 @@
 
 <!--language=Pug-->
 <template lang="pug">
-  div.table(bind:this='{table}')
-    Row
-      +each('cols as col, index (1000 + index)')
-        Column(bind:cell='{cells[0][index]}') {col}
-    Row
-      +each('cols as col, index (2000 + index)')
-          Cell(row="1" column="{col}" value="{headerTable[index]}")
-    +each('rows as row, index1 (3000 + index1)')
-      Row(index="{index1}")
-        +each('cols as col, index2 (4000 + index2)')
-          Cell(
-            row="{index1}"
-            column="{index2}"
-            value='{state[index1][index2]}'
-            bind:html='{state[index1][index2]}'
-            bind:cell='{cells[index1][index2]}'
-          )
-    Selection(bind:borderCover='{borderCover}' deltaCols="{deltaCols}" on:nullCoordinates='{nullCoordinates}')
-  SelectionMoveView(borderCover='{borderCover}' on:newSelectCoords='{handleCoords}' on:nullCoordinates='{nullCoordinates2}')
+  Eventbus
+    div.table(bind:this='{table}')
+      Row
+        +each('cols as col, index (1000 + index)')
+          Column(bind:cell='{cells[0][index]}') {col}
+      Row
+        +each('cols as col, index (2000 + index)')
+            Cell(row="1" column="{col}" value="{headerTable[index]}")
+      +each('rows as row, index1 (3000 + index1)')
+        Row(index="{index1}")
+          +each('cols as col, index2 (4000 + index2)')
+            Cell(
+              row="{index1}"
+              column="{index2}"
+              value='{$state[index1][index2]}'
+              bind:html='{$state[index1][index2]}'
+              bind:cell='{cells[index1][index2]}'
+            )
+      Selection(bind:borderCover='{borderCover}' deltaCols="{deltaCols}" on:nullCoordinates='{nullCoordinates}')
+    SelectionMoveView(borderCover='{borderCover}' on:newSelectCoords='{handleCoords}' on:nullCoordinates='{nullCoordinates2}')
 </template>
 <!-- 
 <template>
