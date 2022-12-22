@@ -137,7 +137,7 @@
             } else {
               // console.log(ev)
             }
-            console.log(555,select)
+            // console.log(555,select)
             if(select[0][0] !== null && select[0][0] !== undefined &&
             select[0][1] !== null && select[0][1] !== undefined &&  ev.type === "mousemove") {
               let firstX = cells[0][select[0][0]];
@@ -145,7 +145,7 @@
               selWidth = firstX.offsetWidth
               selHeight = firstY.offsetHeight
 
-              console.log("555",ev.pageX, firstX.offsetLeft)
+              // console.log("555",ev.pageX, firstX.offsetLeft)
               if(ev.pageX > firstX.offsetLeft) {
                 // console.log(ev)
                 
