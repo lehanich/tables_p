@@ -65,9 +65,9 @@ function onceClick(element: EventTarget, event: string) {
   return new Promise((resolve) => {
     function func (e: Event) {
       element.removeEventListener(event, func)
-      resolve({ value: e, done: false});
+      resolve(e); //{ value: e, done: false}
     }
-    element.addEventListener(event, func); // , { once: true }
+    element.addEventListener(event, func); // , { once: true } // value
   });
 }
 
@@ -81,7 +81,7 @@ async function* seq (...iterables: [AsyncGenerator<Event | any>]) { //!!!!!!!
   for (const i of iterables) {
     for await (const el of i) {
       // console.log(el)
-      yield  el.value ? el.value : el;
+      yield  el; //el.value ? el.value : el;
     }
   }
 }
