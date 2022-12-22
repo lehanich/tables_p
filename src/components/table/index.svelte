@@ -138,10 +138,10 @@
           Cell(
             row="{index1}"
             column="{index2}"
+            value='{state[index1][index2]}'
             bind:html='{state[index1][index2]}'
             bind:cell='{cells[index1][index2]}'
           )
-
     Selection(bind:borderCover='{borderCover}' deltaCols="{deltaCols}" on:nullCoordinates='{nullCoordinates}')
   SelectionMoveView(borderCover='{borderCover}' on:newSelectCoords='{handleCoords}' on:nullCoordinates='{nullCoordinates2}')
 </template>
