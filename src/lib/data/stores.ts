@@ -1,6 +1,6 @@
 import { writable } from 'svelte/store'
 import { tableStore } from './storeTable'
-
+import { coordinatesStore } from "./storeCoordinates"
 // export const alert = writable('Welcome to the to-do list app!')
 
 // const initialTodos = [
@@ -10,3 +10,4 @@ import { tableStore } from './storeTable'
 
 // export const todos = localStore('mdn-svelte-todo', initialTodos)
 export const stateTable = tableStore("table", 21);
+export const stateCoordinates = coordinatesStore();

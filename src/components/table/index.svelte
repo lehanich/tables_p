@@ -7,7 +7,7 @@
   import Cell from "./cell.svelte";
   import Selection from "../selection/index.svelte";
   import SelectionMoveView from "../selection/moveSelection.svelte";
-  import {repeat, filter, seq, once, any, on, every, onlyEvent, onlyEvents } from "../../lib/eventIter.ts";
+  import {repeat, filter, seq, once, any, on, every, every2, onlyEvent, onlyEvents } from "../../lib/eventIter.ts";
   // import {data} from "../toolbar/importCSV";
   import { stateTable as state } from "../../lib/data/stores";
 
@@ -16,6 +16,7 @@
   let table: DOMPoint;
 
   let borderCover;
+  let selCoordinates
 
   let deltaCols: [number, number] = [0, 0];
 
@@ -83,6 +84,7 @@
   afterUpdate(() => {
     console.log($state);
     console.log(cells)
+    console.log(666,borderCover,selCoordinates)
   })
 
   if ($state[0]) {
@@ -118,7 +120,7 @@
                 onlyEvent('mousemove')
               )
             ),
-            onlyEvents('mousedown','mousemove')
+            onlyEvents('mousedown','mousemove')//, 'mouseup')
           )
         );
   }
@@ -148,6 +150,7 @@
               bind:cell='{cells[index1][index2]}'
             )
       Selection(
+        bind:select='{selCoordinates}'
         bind:borderCover='{borderCover}'
         deltaCols="{deltaCols}"
         on:nullCoordinates='{nullCoordinates}'
