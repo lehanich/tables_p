@@ -1,7 +1,8 @@
 <script>
   import { onMount, getContext, afterUpdate,createEventDispatcher } from 'svelte';
+  import {createEventbusDispatcher} from '../../lib/eventBus';
 	import { select_option } from 'svelte/internal';
-  import {repeat, filter, seq, once, any, on, every, onlyEvent, onlyEvents } from "../../lib/eventIter.js";
+  import {repeat, filter, seq, once, any, on, every, onlyEvent, onlyEvents } from "../../lib/eventIter.ts";
   import SelectionAreaView from "./selectionArea.svelte";
   import SelectionBorderView from "./selectionBorder.svelte";
   import SelectionCellView from "./selectionCell.svelte";
@@ -10,7 +11,7 @@
 
   const { getSelect, getCells, getTable } = getContext("show");
 
-  const dispatch = createEventDispatcher();
+  const dispatch = createEventbusDispatcher(); // createEventDispatcher();
   
   export let borderCover;
   let selWidth = 0
@@ -137,7 +138,7 @@
             } else {
               // console.log(ev)
             }
-            console.log(555,select)
+            // console.log(555,select)
             if(select[0][0] !== null && select[0][0] !== undefined &&
             select[0][1] !== null && select[0][1] !== undefined &&  ev.type === "mousemove") {
               let firstX = cells[0][select[0][0]];
@@ -145,7 +146,7 @@
               selWidth = firstX.offsetWidth
               selHeight = firstY.offsetHeight
 
-              console.log("555",ev.pageX, firstX.offsetLeft)
+              // console.log("555",ev.pageX, firstX.offsetLeft)
               if(ev.pageX > firstX.offsetLeft) {
                 // console.log(ev)
                 

@@ -17,10 +17,16 @@ app.post('/api/parse-csv', async (req, res) => {
             console.log(files.file.filepath);
 
             fs.createReadStream(files.file.filepath)
-                .pipe(csv())
+                .pipe(csv(
+                    // {
+                    //     mapValues: ({ header, index, value, separator, quote, raw }) => value.toLowerCase()
+                    // }
+                ))
                 .on('data', (data) => {
                     const id = Date.now().toString(36);
-                    const valueStringify = JSON.stringify({ ...data, id  });
+                    // console.log(data)
+                    // const valueStringify = JSON.stringify({ ...data, id  });
+                    const valueStringify = JSON.stringify({ ...data  });
 
                     res.write(valueStringify);
                 });

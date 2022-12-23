@@ -1,11 +1,11 @@
-function on(element, event){ //onClick
-  let cb = null;
+function on(element: EventTarget, event: string){ //onClick
+  let cb: null | ((e: Event) => void) = null;
 
   // function func (e) {
   //   element.removeEventListener(event, func)
   //   resolve({ value: e, done: false});
   // }
-  function func(e) {
+  function func(e: Event) {
     if (typeof cb === "function") {
       cb(e);
     }
@@ -19,7 +19,7 @@ function on(element, event){ //onClick
     },
 
     next: ()=> new Promise((resolve => {
-      cb = (event) => resolve({done: false,value: event});
+      cb = (event: Event) => resolve({done: false, value: event});
     })),
 
     return: ()=> {
@@ -61,32 +61,32 @@ function on(element, event){ //onClick
 // }
 
 //aply
-function onceClick(element, event) {
+function onceClick(element: EventTarget, event: string) {
   return new Promise((resolve) => {
-    function func (e) {
+    function func (e: Event) {
       element.removeEventListener(event, func)
-      resolve({ value: e, done: false});
+      resolve(e); //{ value: e, done: false}
     }
-    element.addEventListener(event, func); // , { once: true }
+    element.addEventListener(event, func); // , { once: true } // value
   });
 }
 
-async function* once(element, event) {
+async function* once(element: EventTarget, event: string) {
   yield onceClick(element, event) //onceClick
   return Promise.resolve({done:true})
 }
 
-async function* seq (...iterables) {
+async function* seq (...iterables: [AsyncGenerator<Event | any>]) { //!!!!!!!
   // console.dir(iterables)
   for (const i of iterables) {
     for await (const el of i) {
       // console.log(el)
-      yield  el.value ? el.value : el;
+      yield  el; //el.value ? el.value : el;
     }
   }
 }
 
-async function* any (...iterables) {
+async function* any (...iterables: [AsyncGenerator<Event>]) {
   const iters = iterables.map((el) => el[Symbol.asyncIterator]())
   
   while (true) {
@@ -94,7 +94,7 @@ async function* any (...iterables) {
   }
 }
 
-async function* repeat(fn) {
+async function* repeat(fn: () => AsyncGenerator<Event>) {
   for(;;){
     const startFn = fn();
     for await(const e of startFn) {
@@ -103,7 +103,7 @@ async function* repeat(fn) {
   }
 }
 
-async function* every(iterables, fn){
+async function* every(iterables: AsyncGenerator<Event>, fn: (ev: Event) => boolean){
   for await(const event of iterables){
     if(!event || !fn(event)) {
       return event
@@ -113,7 +113,7 @@ async function* every(iterables, fn){
   }
 }
 
-async function* every2(iterables, fn){
+async function* every2(iterables: AsyncGenerator<Event>, fn: (ev: Event) => boolean){
   for await(const event of iterables){
     if(!event || !fn(event)) {
       yield event
@@ -124,15 +124,15 @@ async function* every2(iterables, fn){
   }
 }
 
-function onlyEvent(eventName) {
+function onlyEvent(eventName: string): (ev: Event) => boolean {
   return (e) => e.type === eventName ? true : false;
 }
 
-function onlyEvents(...events) {
+function onlyEvents(...events: [string]): (ev: Event) => boolean {
   return (e) => events.includes(e.type) ? true : false;
 }
 
-function filter(iterable, fn) {
+function filter(iterable: AsyncGenerator, fn: (evName: string | [string]) => boolean) {
   const iter = iterable[Symbol.asyncIterator]();
 
   return {
@@ -166,8 +166,8 @@ function filter(iterable, fn) {
   }
 }
 
-function map(iter, func) {
-  let cursor = iter[Symbol.asyncIterator] ? iter[Symbol.asyncIterator]() : iter[Symbol.iterator]();
+function map(iter: any, func: (e: Event) => Event) { // Iterable<Event> | AsyncIterableIterator<Event>
+  const cursor = iter[Symbol.asyncIterator] ? iter[Symbol.asyncIterator]() : iter[Symbol.iterator]();
 
   return {
     [Symbol.asyncIterator]() {
@@ -175,8 +175,8 @@ function map(iter, func) {
     },
 
     async next() {
-      let el = await cursor.next();
-      let newValue = el.value;
+      const el = await cursor.next();
+      let newValue: Event = el.value;
 
       if (el.done) {
         return Promise.resolve({ done: true, value: null });
@@ -188,12 +188,12 @@ function map(iter, func) {
     },
 
     return() {
-      return Promise({done: true});
+      return Promise.resolve({done: true});
     }
   }
 }
 
-async function* take (obj, max) {
+async function* take (obj: AsyncGenerator, max: number) {
   for await (const el of obj) {
     max--
     yield await el;

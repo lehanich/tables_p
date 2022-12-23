@@ -1,6 +1,6 @@
 <script lang="ts">
   import { onMount, getContext, afterUpdate, createEventDispatcher } from 'svelte';
-  import {repeat, filter, seq, once, any, on, every2, onlyEvent, onlyEvents } from "../../lib/eventIter.js";
+  import {repeat, filter, seq, once, any, on, every2, onlyEvent, onlyEvents } from "../../lib/eventIter.ts";
 
   const dispatch = createEventDispatcher();
 
