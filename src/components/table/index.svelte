@@ -1,6 +1,6 @@
 <script lang="ts">
   import { onMount, setContext, afterUpdate, tick } from 'svelte';
-  import {data as state } from "../toolbar/importCSV";
+  // import {data as state } from "../toolbar/importCSV";
   import Eventbus from '../base/EventBus.svelte';
   import Row from "./row.svelte";
   import Column from "./column.svelte";
@@ -8,7 +8,9 @@
   import Selection from "../selection/index.svelte";
   import SelectionMoveView from "../selection/moveSelection.svelte";
   import {repeat, filter, seq, once, any, on, every, onlyEvent, onlyEvents } from "../../lib/eventIter.ts";
-  import {data} from "../toolbar/importCSV";
+  // import {data} from "../toolbar/importCSV";
+  import { stateTable as state } from "../../lib/data/stores";
+
 
   let selectSpace: AsyncGenerator<HTMLElementEventMap>;
   let table: DOMPoint;
@@ -145,40 +147,17 @@
               bind:html='{$state[index1][index2]}'
               bind:cell='{cells[index1][index2]}'
             )
-      Selection(bind:borderCover='{borderCover}' deltaCols="{deltaCols}" on:nullCoordinates='{nullCoordinates}')
-    SelectionMoveView(borderCover='{borderCover}' on:newSelectCoords='{handleCoords}' on:nullCoordinates='{nullCoordinates2}')
+      Selection(
+        bind:borderCover='{borderCover}'
+        deltaCols="{deltaCols}"
+        on:nullCoordinates='{nullCoordinates}'
+      )
+    SelectionMoveView(
+      borderCover='{borderCover}'
+      on:newSelectCoords='{handleCoords}'
+      on:nullCoordinates='{nullCoordinates2}'
+    )
 </template>
-<!-- 
-<template>
-  <Row>
-    {#each cols as col, index (6000 + index)}
-      <Column bind:cell={cells[0][index]}>
-         {col}
-      </Column>
-	  {/each}
-  </Row>
-  <Row>
-    {#each cols as col, index (3000 + index)}
-      <Cell row="1" column="{col}" value="{headerTable[index]}">
-         {col}
-      </Cell>
-	  {/each}
-  </Row>
-  {#each rows as row, index1 (9000 + index1)}
-    <Row index="{index1}">
-      {#each cols as col, index2 (index2)}
-        <Cell
-          row="{index1}"
-          column="{index2}"
-          value="{state[index1]?.[index2]}"
-          bind:html='{state[index1][index2]}'
-          bind:this='{cells[index1][index2]}'>
-       
-        </Cell>
-      {/each}
-    </Row>
-  {/each}
-</template>-->
 
 <style lang="scss" module>
   @import "./table.scss";
