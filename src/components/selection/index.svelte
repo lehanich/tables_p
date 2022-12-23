@@ -1,5 +1,6 @@
 <script>
   import { onMount, getContext, afterUpdate,createEventDispatcher } from 'svelte';
+  import {createEventbusDispatcher} from '../../lib/eventBus';
 	import { select_option } from 'svelte/internal';
   import {repeat, filter, seq, once, any, on, every, onlyEvent, onlyEvents } from "../../lib/eventIter.ts";
   import SelectionAreaView from "./selectionArea.svelte";
@@ -10,7 +11,7 @@
 
   const { getSelect, getCells, getTable } = getContext("show");
 
-  const dispatch = createEventDispatcher();
+  const dispatch = createEventbusDispatcher(); // createEventDispatcher();
   
   export let borderCover;
   let selWidth = 0
