@@ -19,6 +19,7 @@
   let selCoordinates
 
   let deltaCols: [number, number] = [0, 0];
+  let deltaCoordinates: [number, number] = [0, 0];
 
   function nullCoordinates(event) {
     deltaCols = [0,0];
@@ -36,14 +37,52 @@
   }
 
   function handleCoords(event) {
+    console.log("444 11", event.detail.cols)
     console.log("444 11", event.detail.coords)
-    console.log("444 11 ++",deltaCols)
+    // console.log("444 11 ++",deltaCols)
 		// deltaCols = [...event.detail.coords];
-    deltaCols[0] += event.detail.coords[0];
-    deltaCols[1] += event.detail.coords[1];
+    deltaCols[0] += event.detail.cols[0];
+    deltaCols[1] += event.detail.cols[1];
+    // borderCover.left += event.detail.coords[0]
+    // borderCover.top += event.detail.coords[1]
+    console.log("444 11 --",selCoordinates, deltaCols)
+
+    deltaCoordinates
+    deltaCoordinates[0] += event.detail.coords[0];
+    deltaCoordinates[1] += event.detail.coords[1];
     borderCover.left += event.detail.coords[0]
     borderCover.top += event.detail.coords[1]
-    console.log("444 11 --",deltaCols)
+    console.log("444 11 --",deltaCoordinates)
+
+    // selCoordinates
+    // deltaCols
+
+    let buffer = [];
+    let index1 = 0;
+    for(let i=selCoordinates[0][1] - 1; i < selCoordinates[1][1]; i++) {
+      buffer[index1] = [];
+      let index2 = 0;
+      for(let j = selCoordinates[0][0]; j <= selCoordinates[1][0]; j++) {
+        console.log(i,j,$state[i][j])
+        buffer[index1][index2] = $state[i][j];
+        index2++;
+        $state[i][j] = "";
+      }
+      index1++;
+    }
+    console.log("444 buffer", buffer)
+
+    index1 = 0;
+    for(let i=selCoordinates[0][1] - 1 + deltaCols[1]; i < selCoordinates[1][1] + deltaCols[1]; i++) {
+
+      let index2 = 0;
+      for(let j = selCoordinates[0][0] + deltaCols[0]; j <= selCoordinates[1][0] + deltaCols[0]; j++) {
+        $state[i][j] = buffer[index1][index2];
+        index2++;
+      }
+      index1++;
+    }
+
 	}
 
   setContext("show", {
@@ -136,9 +175,6 @@
       Row
         +each('cols as col, index (1000 + index)')
           Column(bind:cell='{cells[0][index]}') {col}
-      Row
-        +each('cols as col, index (2000 + index)')
-            Cell(row="1" column="{col}" value="{headerTable[index]}")
       +each('rows as row, index1 (3000 + index1)')
         Row(index="{index1}")
           +each('cols as col, index2 (4000 + index2)')
@@ -152,7 +188,7 @@
       Selection(
         bind:select='{selCoordinates}'
         bind:borderCover='{borderCover}'
-        deltaCols="{deltaCols}"
+        deltaCols="{deltaCoordinates}"
         on:nullCoordinates='{nullCoordinates}'
       )
     SelectionMoveView(
