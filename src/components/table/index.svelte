@@ -126,8 +126,8 @@
   // });
 
   afterUpdate(() => {
-    console.log($state);
-    console.log(cells)
+    // console.log($state);
+    // console.log(cells)
     console.log(666,borderCover,selCoordinates)
   })
 

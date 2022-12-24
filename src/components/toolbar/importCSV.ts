@@ -3,7 +3,7 @@ import { stateTable } from "../../lib/data/stores";
 
 let data
 stateTable.subscribe(value => {
-      console.log(value);
+    //   console.log(value);
       data = value;
 });
 

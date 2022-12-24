@@ -6,6 +6,9 @@
 
   let activeSide: HTMLDivElement
 
+  // let {borderCover} = $$props;
+  let selectArea;
+
   let deltaCols: [number, number] = [0, 0];
   let deltaCoordinates: [number, number] = [0, 0];
   // let deltaColsBuf: [number, number] = [0, 0];
@@ -42,6 +45,7 @@
 
   afterUpdate(() => {
     console.log($$props)
+    selectArea = { ...$$props.borderCover }
     borderCover = {
       ...borderCover,
       ...$$props.borderCover,
@@ -142,8 +146,10 @@
               
 
               for (let xEl of cells[0]) {
-                console.log(ev.pageX , xEl.offsetLeft , ev.pageX , xEl.offsetLeft + xEl.offsetWidth)
-                if(ev.pageX > xEl.offsetLeft && ev.pageX < xEl.offsetLeft + xEl.offsetWidth) {
+                // console.log(ev.pageX , xEl.offsetLeft , ev.pageX , xEl.offsetLeft + xEl.offsetWidth)
+                let pageX = ev.pageX < selectArea.left ? selectArea.left + 1 :
+                  ev.pageX > selectArea.left + selectArea.width ? selectArea.left + selectArea.width - 2  : ev.pageX ;
+                if(pageX > xEl.offsetLeft && pageX < xEl.offsetLeft + xEl.offsetWidth) {
                   //stop
                   console.dir( xEl)
                   select[0][0] = i
@@ -155,12 +161,18 @@
               i = 0;
               for (const yEl of rows) {
                 // console.log("y", yEl.offsetTop + offsetTop, yEl.offsetHeight, yEl.clientHeight)
-                if(ev.pageY > yEl.offsetTop + offsetTop && ev.pageY < yEl.offsetTop + offsetTop + yEl.offsetHeight) {
+                let pageY = ev.pageY < selectArea.top  + offsetTop ? selectArea.top  + offsetTop + 1 :
+                  ev.pageY > selectArea.top + selectArea.height  + offsetTop ? selectArea.top + selectArea.height  + offsetTop - 2  : ev.pageY ;
+                  console.log("click y 111 9-- ",ev.pageY, pageY, selectArea.top  + offsetTop)
+
+                  if(pageY >= yEl.offsetTop + offsetTop && pageY <= yEl.offsetTop + offsetTop + yEl.offsetHeight) {
                   //stop
                   console.dir( yEl)
                   // console.dir(rows)
                   select[0][1] = i
+                  console.log("click y 111 9-- ",ev.pageY, pageY, selectArea.top  + offsetTop)
                   console.log("click y 111 9 ",i, yEl.offsetTop)
+                  console.dir(yEl);
                 }
                 i++
               }
@@ -207,15 +219,17 @@
                   xEl = cells[0][i];
                   // console.log(1112, ev.pageX , xEl.offsetLeft, firstX.offsetLeft + deltaCols[0] )
                   // if(ev.pageX < xEl.offsetLeft && ev.pageX < firstX.offsetLeft +  firstX.offsetWidth - deltaCols[0]) {
-                  if(ev.pageX > xEl.offsetLeft && ev.pageX < firstX.offsetLeft + deltaCols[0] ) {
+                  if(ev.pageX > xEl.offsetLeft && ev.pageX < firstX.offsetLeft + deltaCols[0]  && ev.pageX < xEl.offsetLeft + xEl.offsetWidth) {
                     // selWidth += xEl.offsetWidth;
 
                     // borderCover.left = borderCover.left - xEl.offsetLeft
                     // console.log("selLeft", selLeft);
-                      // borderCover.left = borderCover.left + firstX.offsetLeft
+                    // borderCover.left = borderCover.left + firstX.offsetLeft
                     // console.log("1112 7",xEl.offsetLeft, firstX.offsetLeft)
                     deltaCols[0] = i - select[0][0]; //deltaCols[0] - xEl.offsetWidth;
                     deltaCoordinates[0] = xEl.offsetLeft - firstX.offsetLeft;
+                    // console.log("444 rrr", i, select[0][0]);
+                    // console.log("444 rrr - ", ev.pageX , xEl.offsetLeft , firstX.offsetLeft + deltaCols[0])
                     // console.log("1112 8",deltaCols[0])
                   }
                   // console.log("selLeft", selLeft);
@@ -234,7 +248,7 @@
                   // firstY.offsetTop + firstY.offsetHeight + offsetTop)
                   if(ev.pageY > yEl.offsetTop + offsetTop && ev.pageY < yEl.offsetTop + yEl.offsetHeight + offsetTop) {
                     // selHeight += yEl.offsetHeight;
-                    console.log("111 9 8",yEl.offsetTop,firstY.offsetTop,yEl.offsetTop -  firstY.offsetTop)
+                    // console.log("111 9 8",yEl.offsetTop,firstY.offsetTop,yEl.offsetTop -  firstY.offsetTop)
                     deltaCols[1] = i - select[0][1];
                     deltaCoordinates[1] = yEl.offsetTop -  firstY.offsetTop;
                   }
@@ -244,8 +258,10 @@
                 for(let i = select[0][1]-1; i >= 0; i-- ) {
                   yEl = rows[i];
                   // console.log(ev.pageY , yEl.offsetTop + offsetTop + yEl.offsetHeight)
-                  if(ev.pageY > yEl.offsetTop + offsetTop && ev.pageY < yEl.offsetTop + yEl.offsetHeight + offsetTop) {
-                      console.log("111 9 9",yEl.offsetTop, yEl.offsetTop -  firstY.offsetTop)
+                  // console.log("111 9 9-",ev.pageY, firstY.offsetTop + offsetTop)
+                  // console.log("111 9 9-",ev.pageY, yEl.offsetTop+ offsetTop,yEl.offsetTop + yEl.offsetHeight + offsetTop)
+                  if(ev.pageY > yEl.offsetTop + offsetTop && ev.pageY < yEl.offsetTop + yEl.offsetHeight + offsetTop ) {
+                      // console.log("111 9 9-",ev.pageY, yEl.offsetTop+ offsetTop,yEl.offsetTop + yEl.offsetHeight + offsetTop)
                       deltaCols[1] = i - select[0][1];
                       deltaCoordinates[1] =  yEl.offsetTop -  firstY.offsetTop;
                     // selHeight += yEl.offsetHeight;
