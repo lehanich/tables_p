@@ -11,9 +11,14 @@
 
   const { getSelect, getCells, getTable } = getContext("show");
 
+  // const dispatch = createEventDispatcher();
   const dispatch = createEventbusDispatcher(); // createEventDispatcher();
-  
+  console.log("event bus",dispatch);
+  console.dir(dispatch);
+
   export let borderCover;
+  export let select;
+
   let selWidth = 0
   let selHeight = 0;
   let selTop = 0;
@@ -75,7 +80,7 @@
             }
           }
 
-          let select = Array(2).fill(Array(2)); // first last
+          select = [[], []]; // Array(2).fill(Array(2)); // first last
           let xCursor = cells[0][Symbol.iterator]();
           let yCursor = cells[Symbol.iterator]();
           let first;
@@ -89,7 +94,8 @@
 
             if((ev.value && ev.value.type === "mousedown") || ev.type === "mousedown") 
             {
-              dispatch('nullCoordinates', { coords: [0,0] });
+              dispatch('nullDelta', { coords: [0,0] });
+              // dispatch('nullDelta');
               let i = 0;
               for (let xEl of cells[0]) {
                 // console.log("555",ev.pageX , xEl.offsetLeft ,xEl.offsetLeft + xEl.offsetWidth)
@@ -97,7 +103,10 @@
                   //stop
                   // console.log( "555", i, xEl)
                   // console.log("555",ev.pageX , xEl.offsetLeft ,xEl.offsetLeft + xEl.offsetWidth)
+                  // console.log("666 1", select[0], select[1])
                   select[0][0] = i
+                  select[1][0] = i
+                  // console.log("666 2", select[0], select[1])
 
                   selCellLeft = xEl.offsetLeft
                   selCellWidth = xEl.offsetWidth
@@ -125,6 +134,7 @@
                   console.dir( yEl)
                   // console.dir(rows)
                   select[0][1] = i
+                  select[1][1] = i
                   selCellTop =yEl.offsetTop ;
                   selCellHeight = yEl.offsetHeight
 
@@ -153,9 +163,10 @@
                 for(let i = select[0][0] ; i < cells[0].length; i++ ) {
                   xEl = cells[0][i];
                    selLeft = firstX.offsetLeft
-                   console.log("555 ", ev.pageX , xEl.offsetLeft ,  firstX.offsetLeft + selWidth)
+                  //  console.log("555 ", ev.pageX , xEl.offsetLeft ,  firstX.offsetLeft + selWidth)
                   if(ev.pageX > xEl.offsetLeft && ev.pageX > firstX.offsetLeft + selWidth) {
                     selWidth += xEl.offsetWidth;
+                    select[1][0] = i+1
                   }
                   // console.log("selLeft", selLeft);
                 }
@@ -166,6 +177,7 @@
                     selWidth += xEl.offsetWidth;
 
                     selLeft = firstX.offsetLeft +  firstX.offsetWidth - selWidth
+                    select[1][0] = i-1
                     // console.log("selLeft", selLeft);
                   }
                   // console.log("selLeft", selLeft);
@@ -180,6 +192,7 @@
 
                   if(ev.pageY > yEl.offsetTop + offsetTop && ev.pageY > firstY.offsetTop + offsetTop + selHeight) {
                     selHeight += yEl.offsetHeight;
+                    select[1][1] = i
                   }
                 }
               } else {
@@ -191,12 +204,13 @@
                     selHeight += yEl.offsetHeight;
 
                     selTop = firstY.offsetTop  + firstY.offsetHeight - selHeight
-
+                    select[1][1] = i
                     if (ev.pageX > firstX.offsetLeft) {
                       //// selCell.top = firstY.offsetTop + offsetTop + firstY.offsetHeight - selHeight
                     } else {
                       //// selCell.top = firstY.offsetTop + offsetTop + firstY.offsetHeight - selHeight
                       selLeft = firstX.offsetLeft +  firstX.offsetWidth - selWidth
+                      select[1][1] = i
                       // console.log("selLeft", selLeft);
                     }
 

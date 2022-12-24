@@ -7,7 +7,7 @@
   import Cell from "./cell.svelte";
   import Selection from "../selection/index.svelte";
   import SelectionMoveView from "../selection/moveSelection.svelte";
-  import {repeat, filter, seq, once, any, on, every, onlyEvent, onlyEvents } from "../../lib/eventIter.ts";
+  import {repeat, filter, seq, once, any, on, every, every2, onlyEvent, onlyEvents } from "../../lib/eventIter.ts";
   // import {data} from "../toolbar/importCSV";
   import { stateTable as state } from "../../lib/data/stores";
 
@@ -16,12 +16,17 @@
   let table: DOMPoint;
 
   let borderCover;
+  let selCoordinates
 
   let deltaCols: [number, number] = [0, 0];
+  let deltaCoordinates: [number, number] = [0, 0];
+  let deltaCols2: [number, number] = [0, 0];
 
-  function nullCoordinates(event) {
+  function nullDelta(event) {
     deltaCols = [0,0];
-    console.log("444 11 null coords",event.detail.coords)
+    deltaCoordinates = [0,0];
+    deltaCols2 = [0,0];
+    console.log("444 11 null coords",event)
   }
   function nullCoordinates2(event) {
     // deltaCols = [...event.detail.coords];
@@ -35,14 +40,54 @@
   }
 
   function handleCoords(event) {
+    console.log("444 11", event.detail.cols)
     console.log("444 11", event.detail.coords)
-    console.log("444 11 ++",deltaCols)
+    // console.log("444 11 ++",deltaCols)
 		// deltaCols = [...event.detail.coords];
-    deltaCols[0] += event.detail.coords[0];
-    deltaCols[1] += event.detail.coords[1];
+    deltaCols[0] += event.detail.cols[0];
+    deltaCols[1] += event.detail.cols[1];
+    // borderCover.left += event.detail.coords[0]
+    // borderCover.top += event.detail.coords[1]
+    console.log("444 11 --",selCoordinates, deltaCols)
+
+    deltaCoordinates
+    deltaCoordinates[0] += event.detail.coords[0];
+    deltaCoordinates[1] += event.detail.coords[1];
     borderCover.left += event.detail.coords[0]
     borderCover.top += event.detail.coords[1]
-    console.log("444 11 --",deltaCols)
+    console.log("444 11 --",deltaCoordinates)
+
+    // selCoordinates
+    // deltaCols
+
+    let buffer = [];
+    let index1 = 0;
+    for(let i=selCoordinates[0][1] - 1 + deltaCols2[1]; i < selCoordinates[1][1] + deltaCols2[1]; i++) {
+      buffer[index1] = [];
+      let index2 = 0;
+      for(let j = selCoordinates[0][0] + deltaCols2[0]; j <= selCoordinates[1][0] + deltaCols2[0]; j++) {
+        console.log(i,j,$state[i][j])
+        buffer[index1][index2] = $state[i][j];
+        index2++;
+        $state[i][j] = "";
+      }
+      index1++;
+    }
+    console.log("444 buffer", buffer)
+
+    index1 = 0;
+    for(let i=selCoordinates[0][1] - 1 + deltaCols[1]; i < selCoordinates[1][1] + deltaCols[1]; i++) {
+
+      let index2 = 0;
+      for(let j = selCoordinates[0][0] + deltaCols[0]; j <= selCoordinates[1][0] + deltaCols[0]; j++) {
+        $state[i][j] = buffer[index1][index2];
+        index2++;
+      }
+      index1++;
+    }
+    
+    deltaCols2 = [...deltaCols];
+
 	}
 
   setContext("show", {
@@ -83,6 +128,7 @@
   afterUpdate(() => {
     console.log($state);
     console.log(cells)
+    console.log(666,borderCover,selCoordinates)
   })
 
   if ($state[0]) {
@@ -118,7 +164,7 @@
                 onlyEvent('mousemove')
               )
             ),
-            onlyEvents('mousedown','mousemove')
+            onlyEvents('mousedown','mousemove')//, 'mouseup')
           )
         );
   }
@@ -129,14 +175,13 @@
 
 <!--language=Pug-->
 <template lang="pug">
-  Eventbus
+  Eventbus(
+    on:nullDelta='{nullDelta}'
+  )
     div.table(bind:this='{table}')
       Row
         +each('cols as col, index (1000 + index)')
           Column(bind:cell='{cells[0][index]}') {col}
-      Row
-        +each('cols as col, index (2000 + index)')
-            Cell(row="1" column="{col}" value="{headerTable[index]}")
       +each('rows as row, index1 (3000 + index1)')
         Row(index="{index1}")
           +each('cols as col, index2 (4000 + index2)')
@@ -148,9 +193,10 @@
               bind:cell='{cells[index1][index2]}'
             )
       Selection(
+        bind:select='{selCoordinates}'
         bind:borderCover='{borderCover}'
-        deltaCols="{deltaCols}"
-        on:nullCoordinates='{nullCoordinates}'
+        deltaCols="{deltaCoordinates}"
+        on:nullDelta='{nullDelta}'
       )
     SelectionMoveView(
       borderCover='{borderCover}'

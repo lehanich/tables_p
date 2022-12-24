@@ -7,6 +7,7 @@
   let activeSide: HTMLDivElement
 
   let deltaCols: [number, number] = [0, 0];
+  let deltaCoordinates: [number, number] = [0, 0];
   // let deltaColsBuf: [number, number] = [0, 0];
 
   const { getTable, getCells } = getContext("show");
@@ -136,7 +137,8 @@
               dispatch('nullCoordinates', { coords: [...deltaCols] });
               // dispatch('nullCoordinates', { coords: [ borderCover.left,  borderCover.top] });
               console.log("444 11 old offset ", deltaCols, borderCover.left, borderCover.top)
-              deltaCols = [0,0]
+              deltaCols = [0,0];
+              deltaCoordinates = [0,0];
               
 
               for (let xEl of cells[0]) {
@@ -177,6 +179,7 @@
               moveY = ev.pageY - yOffset;
 
               deltaCols = [0,0];
+              deltaCoordinates = [0,0];
               // console.log(3, ev.pageX , xOffset);
               // console.log(4, ev.pageY , yOffset);
               // console.log(5, borderCoverMove.left, borderCoverMove.top);
@@ -194,7 +197,8 @@
                   if(ev.pageX > xEl.offsetLeft && ev.pageX < xEl.offsetLeft+ firstX.offsetWidth + deltaCols[0] ) {
                     // borderCover.left = borderCover.left + firstX.offsetLeft
                     console.log("111 6",xEl.offsetLeft)
-                    deltaCols[0] = xEl.offsetLeft - firstX.offsetLeft; // deltaCols[0] + xEl.offsetWidth
+                    deltaCols[0] = i - select[0][0]; // deltaCols[0] + xEl.offsetWidth
+                    deltaCoordinates[0] = xEl.offsetLeft - firstX.offsetLeft;
                   }
                   // console.log("selLeft", selLeft);
                 }
@@ -210,7 +214,8 @@
                     // console.log("selLeft", selLeft);
                       // borderCover.left = borderCover.left + firstX.offsetLeft
                     // console.log("1112 7",xEl.offsetLeft, firstX.offsetLeft)
-                    deltaCols[0] = xEl.offsetLeft - firstX.offsetLeft; //deltaCols[0] - xEl.offsetWidth;
+                    deltaCols[0] = i - select[0][0]; //deltaCols[0] - xEl.offsetWidth;
+                    deltaCoordinates[0] = xEl.offsetLeft - firstX.offsetLeft;
                     // console.log("1112 8",deltaCols[0])
                   }
                   // console.log("selLeft", selLeft);
@@ -230,7 +235,8 @@
                   if(ev.pageY > yEl.offsetTop + offsetTop && ev.pageY < yEl.offsetTop + yEl.offsetHeight + offsetTop) {
                     // selHeight += yEl.offsetHeight;
                     console.log("111 9 8",yEl.offsetTop,firstY.offsetTop,yEl.offsetTop -  firstY.offsetTop)
-                    deltaCols[1] = yEl.offsetTop -  firstY.offsetTop
+                    deltaCols[1] = i - select[0][1];
+                    deltaCoordinates[1] = yEl.offsetTop -  firstY.offsetTop;
                   }
                 }
 
@@ -240,7 +246,8 @@
                   // console.log(ev.pageY , yEl.offsetTop + offsetTop + yEl.offsetHeight)
                   if(ev.pageY > yEl.offsetTop + offsetTop && ev.pageY < yEl.offsetTop + yEl.offsetHeight + offsetTop) {
                       console.log("111 9 9",yEl.offsetTop, yEl.offsetTop -  firstY.offsetTop)
-                      deltaCols[1] = yEl.offsetTop -  firstY.offsetTop
+                      deltaCols[1] = i - select[0][1];
+                      deltaCoordinates[1] =  yEl.offsetTop -  firstY.offsetTop;
                     // selHeight += yEl.offsetHeight;
 
                     // selTop = firstY.offsetTop  + firstY.offsetHeight - selHeight
@@ -267,7 +274,7 @@
               moveX = null;
               moveY = null;
               console.log("111 922 ",deltaCols)
-              dispatch('newSelectCoords', { coords: [...deltaCols] });
+              dispatch('newSelectCoords', { coords: [...deltaCoordinates], cols: [...deltaCols] });
               // dispatch('newSelectCoords', { coords: [0,0] });
 
               // borderCover.left += deltaCols[0] ? deltaCols[0] : 0;
