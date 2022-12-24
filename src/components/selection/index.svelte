@@ -11,8 +11,11 @@
 
   const { getSelect, getCells, getTable } = getContext("show");
 
+  // const dispatch = createEventDispatcher();
   const dispatch = createEventbusDispatcher(); // createEventDispatcher();
-  
+  console.log("event bus",dispatch);
+  console.dir(dispatch);
+
   export let borderCover;
   export let select;
 
@@ -91,7 +94,8 @@
 
             if((ev.value && ev.value.type === "mousedown") || ev.type === "mousedown") 
             {
-              dispatch('nullCoordinates', { coords: [0,0] });
+              dispatch('nullDelta', { coords: [0,0] });
+              // dispatch('nullDelta');
               let i = 0;
               for (let xEl of cells[0]) {
                 // console.log("555",ev.pageX , xEl.offsetLeft ,xEl.offsetLeft + xEl.offsetWidth)

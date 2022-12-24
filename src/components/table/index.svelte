@@ -20,10 +20,13 @@
 
   let deltaCols: [number, number] = [0, 0];
   let deltaCoordinates: [number, number] = [0, 0];
+  let deltaCols2: [number, number] = [0, 0];
 
-  function nullCoordinates(event) {
+  function nullDelta(event) {
     deltaCols = [0,0];
-    console.log("444 11 null coords",event.detail.coords)
+    deltaCoordinates = [0,0];
+    deltaCols2 = [0,0];
+    console.log("444 11 null coords",event)
   }
   function nullCoordinates2(event) {
     // deltaCols = [...event.detail.coords];
@@ -59,10 +62,10 @@
 
     let buffer = [];
     let index1 = 0;
-    for(let i=selCoordinates[0][1] - 1; i < selCoordinates[1][1]; i++) {
+    for(let i=selCoordinates[0][1] - 1 + deltaCols2[1]; i < selCoordinates[1][1] + deltaCols2[1]; i++) {
       buffer[index1] = [];
       let index2 = 0;
-      for(let j = selCoordinates[0][0]; j <= selCoordinates[1][0]; j++) {
+      for(let j = selCoordinates[0][0] + deltaCols2[0]; j <= selCoordinates[1][0] + deltaCols2[0]; j++) {
         console.log(i,j,$state[i][j])
         buffer[index1][index2] = $state[i][j];
         index2++;
@@ -82,6 +85,8 @@
       }
       index1++;
     }
+    
+    deltaCols2 = [...deltaCols];
 
 	}
 
@@ -170,7 +175,9 @@
 
 <!--language=Pug-->
 <template lang="pug">
-  Eventbus
+  Eventbus(
+    on:nullDelta='{nullDelta}'
+  )
     div.table(bind:this='{table}')
       Row
         +each('cols as col, index (1000 + index)')
@@ -189,7 +196,7 @@
         bind:select='{selCoordinates}'
         bind:borderCover='{borderCover}'
         deltaCols="{deltaCoordinates}"
-        on:nullCoordinates='{nullCoordinates}'
+        on:nullDelta='{nullDelta}'
       )
     SelectionMoveView(
       borderCover='{borderCover}'
