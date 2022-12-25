@@ -1,5 +1,5 @@
 <script>
-  import { onMount, getContext, afterUpdate,createEventDispatcher } from 'svelte';
+  import { onMount, getContext, setContext, afterUpdate,createEventDispatcher } from 'svelte';
   import {createEventbusDispatcher} from '../../lib/eventBus';
 	import { select_option } from 'svelte/internal';
   import {repeat, filter, seq, once, any, on, every, onlyEvent, onlyEvents } from "../../lib/eventIter.ts";
@@ -11,6 +11,10 @@
 
   const { getSelect, getCells, getTable } = getContext("show");
 
+  // setContext("select", {
+  //   getSelectArea: () => selectSpaceArea,
+  // })
+
   // const dispatch = createEventDispatcher();
   const dispatch = createEventbusDispatcher(); // createEventDispatcher();
   console.log("event bus",dispatch);
@@ -18,6 +22,7 @@
 
   export let borderCover;
   export let select;
+  export let selectSpace = { ...selSpace };
 
   let selWidth = 0
   let selHeight = 0;
@@ -51,6 +56,9 @@
     // selCellLeft += $$props.deltaCols[0]
     // selCellTop +=  $$props.deltaCols[1]
     console.log("444 9", selCell,selSpace)
+    selectSpace = { ...selSpace }
+    console.log(selectSpace)
+    dispatch('updateSpace', selectSpace);
   })
 
   const loadWorker = async () => {

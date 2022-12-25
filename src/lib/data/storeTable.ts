@@ -13,7 +13,7 @@ export const tableStore = (key, initial: number) => {                 // receive
   return {
       subscribe,
       set: (value) => {
-        console.log(2, value)
+        // console.log(2, value)
         // browser ? localStorage.setItem(key, toString(value)) : value              // save also to local storage as a string
         return set(value)
       },

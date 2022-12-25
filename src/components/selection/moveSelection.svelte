@@ -6,14 +6,15 @@
 
   let activeSide: HTMLDivElement
 
-  // let {borderCover} = $$props;
   let selectArea;
 
   let deltaCols: [number, number] = [0, 0];
   let deltaCoordinates: [number, number] = [0, 0];
   // let deltaColsBuf: [number, number] = [0, 0];
 
-  const { getTable, getCells } = getContext("show");
+  const { getTable, getCells, getSelectArea } = getContext("show");
+  // const { getSelectArea } = getContext("select");
+  let selectCover ; //= getSelectArea();
 
   let borderCover = {
     left: 0,
@@ -44,8 +45,10 @@
   }
 
   afterUpdate(() => {
-    console.log($$props)
+    // console.log($$props)
     selectArea = { ...$$props.borderCover }
+    selectCover = { ...$$props.selectCover }
+    console.log("111 SELECT AREA", selectCover, getSelectArea())
     borderCover = {
       ...borderCover,
       ...$$props.borderCover,
@@ -147,8 +150,9 @@
 
               for (let xEl of cells[0]) {
                 // console.log(ev.pageX , xEl.offsetLeft , ev.pageX , xEl.offsetLeft + xEl.offsetWidth)
-                let pageX = ev.pageX < selectArea.left ? selectArea.left + 1 :
-                  ev.pageX > selectArea.left + selectArea.width ? selectArea.left + selectArea.width - 2  : ev.pageX ;
+                console.log("111 selectCover ", selectCover)
+                let pageX = ev.pageX <= selectCover.left ? selectCover.left + 1 :
+                  ev.pageX >= selectCover.left + selectCover.width ? selectCover.left + selectCover.width - 2  : ev.pageX ;
                 if(pageX > xEl.offsetLeft && pageX < xEl.offsetLeft + xEl.offsetWidth) {
                   //stop
                   console.dir( xEl)
@@ -161,16 +165,18 @@
               i = 0;
               for (const yEl of rows) {
                 // console.log("y", yEl.offsetTop + offsetTop, yEl.offsetHeight, yEl.clientHeight)
-                let pageY = ev.pageY < selectArea.top  + offsetTop ? selectArea.top  + offsetTop + 1 :
-                  ev.pageY > selectArea.top + selectArea.height  + offsetTop ? selectArea.top + selectArea.height  + offsetTop - 2  : ev.pageY ;
-                  console.log("click y 111 9-- ",ev.pageY, pageY, selectArea.top  + offsetTop)
+                let pageY = ev.pageY <= selectCover.top  + offsetTop ? selectCover.top  + offsetTop + 1 :
+                  ev.pageY >= selectCover.top + selectCover.height  + offsetTop ? selectCover.top + selectCover.height  + offsetTop - 2  : ev.pageY ;
+                  console.log("click y 111 9-- ",ev.pageY, pageY, selectCover.top  + offsetTop,
+                  selectCover.top + selectCover.height  + offsetTop)
 
-                  if(pageY >= yEl.offsetTop + offsetTop && pageY <= yEl.offsetTop + offsetTop + yEl.offsetHeight) {
+                  if(pageY > yEl.offsetTop + offsetTop && pageY < yEl.offsetTop + offsetTop + yEl.offsetHeight) {
                   //stop
                   console.dir( yEl)
                   // console.dir(rows)
                   select[0][1] = i
-                  console.log("click y 111 9-- ",ev.pageY, pageY, selectArea.top  + offsetTop)
+                  // console.log("click y 111 9-- ",ev.pageY, pageY, borderCover.top  + offsetTop , borderCover.top + borderCover.height  + offsetTop)
+                  console.log("click y 111 9-- ",ev.pageY, pageY, selectCover.top  + offsetTop , selectCover.top + selectCover.height  + offsetTop)
                   console.log("click y 111 9 ",i, yEl.offsetTop)
                   console.dir(yEl);
                 }
