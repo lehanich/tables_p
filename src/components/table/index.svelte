@@ -16,7 +16,8 @@
   let table: DOMPoint;
 
   let borderCover;
-  let selCoordinates
+  let selCoordinates;
+  let selectSpaceB;
 
   let deltaCols: [number, number] = [0, 0];
   let deltaCoordinates: [number, number] = [0, 0];
@@ -93,13 +94,18 @@
   setContext("show", {
     getSelect: () => selectSpace,
     getCells: () => cells,
-    getTable: () => table
+    getTable: () => table,
+    getSelectArea: () => selectSpaceB
   })
 
   const CODES = {
     A: 65,
     Z: 90,
   };
+
+  function updateSpace(event) {
+    selectSpaceB = {...event.detail.selectSpace }
+  }
 
   function toChar(_: any, i:number) {
     return String.fromCharCode(CODES.A + i);
@@ -126,8 +132,8 @@
   // });
 
   afterUpdate(() => {
-    console.log($state);
-    console.log(cells)
+    // console.log($state);
+    // console.log(cells)
     console.log(666,borderCover,selCoordinates)
   })
 
@@ -177,6 +183,7 @@
 <template lang="pug">
   Eventbus(
     on:nullDelta='{nullDelta}'
+    on:updateSpace='{updateSpace}'
   )
     div.table(bind:this='{table}')
       Row
@@ -194,12 +201,14 @@
             )
       Selection(
         bind:select='{selCoordinates}'
+        bind:selectSpace='{selectSpaceB}'
         bind:borderCover='{borderCover}'
         deltaCols="{deltaCoordinates}"
         on:nullDelta='{nullDelta}'
       )
     SelectionMoveView(
       borderCover='{borderCover}'
+      selectCover='{selectSpaceB}'
       on:newSelectCoords='{handleCoords}'
       on:nullCoordinates='{nullCoordinates2}'
     )
