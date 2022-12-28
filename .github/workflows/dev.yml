@@ -30,7 +30,7 @@ jobs:
           deploy_path: /opt/excel
           copy_stack_file: false          
           stack_file_name: docker-compose.yml          
-          args: up -d --build
+          args: up -d --build 
     
       - name: Image digest
         run: echo ${{ steps.docker_build.outputs.digest }}
