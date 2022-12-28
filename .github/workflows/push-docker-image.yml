@@ -1,4 +1,4 @@
-name: This a workflow title 
+name: Push Docker Hub
 on:
   push:
     branches: [ "dev" ]
