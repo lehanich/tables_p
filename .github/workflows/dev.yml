@@ -1,4 +1,4 @@
-name: Deploy Docker to Yandex Cloud
+name: Deploy Docker to Yandex Cloud 
 
 # Controls when the workflow will run
 on:
@@ -32,9 +32,10 @@ jobs:
       - name: Yandex Deployment
         uses: appleboy/ssh-action@master
         with:
-          remote_docker_host: ${{ secrets.DOCKER_HOST }}
-          ssh_private_key: ${{ secrets.DOCKER_SSH_PRIVATE_KEY }}
-          ssh_public_key: ${{ secrets.DOCKER_SSH_PUBLIC_KEY }}
+          host: ${{ secrets.DOCKER_HOST }}
+          key: ${{ secrets.DOCKER_SSH_PRIVATE_KEY }}
+          username: ${{ secrets.USERNAME }}
+          port: ${{ secrets.SSH_PORT }}
 #           deployment_mode: docker-compose
 #           deploy_path: /opt/excel
 #           copy_stack_file: false          
@@ -46,9 +47,10 @@ jobs:
             git fetch origin dev
             git reset --hard FETCH_HEAD
             git clean -d -f --exclude secrets
-            docker-compose -f ../../docker-compose.yml down
+            docker-compose -f docker-compose.yml down
             docker-compose build
-            docker-compose -f ../../docker-compose.yml up
+            docker-compose -f docker-compose.yml up -d
+            #cp -f docker-compose.yml ../../docker-compose.yml
       - name: Print Info
         run: echo "Deployed at yandex ayakimkin"
         
