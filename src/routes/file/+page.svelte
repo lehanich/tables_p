@@ -1,4 +1,5 @@
 <script lang="ts">
+  // export const prerender = true;
   import { onMount } from 'svelte';
 
   let syncWorker: Worker | undefined = undefined;

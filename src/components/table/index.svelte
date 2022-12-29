@@ -10,6 +10,7 @@
   import {repeat, filter, seq, once, any, on, every, every2, onlyEvent, onlyEvents } from "../../lib/eventIter.ts";
   // import {data} from "../toolbar/importCSV";
   import { stateTable as state } from "../../lib/data/stores";
+  import { tableStore as state2 } from "../../lib/data/storeTableMatrix";
 
 
   let selectSpace: AsyncGenerator<HTMLElementEventMap>;
