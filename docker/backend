@@ -1,0 +1,28 @@
+# FROM node:lts-alpine
+# #FROM node:lts-alpine as build-stage
+# WORKDIR /usr/app
+# COPY package.json .
+# RUN apk update && apk upgrade && \
+#     apk add --no-cache bash git openssh
+
+# #RUN npm install git+ssh://git@github.com/KurentoForks/reconnect-ws.git
+
+# RUN npm install --quiet
+# COPY . .
+# #RUN node server
+# EXPOSE 3000
+# CMD [ "node", "server.js" ]
+# # CMD [ "node", "server.js" ]
+# #RUN npm run
+
+
+FROM node:lts-alpine
+#FROM node:lts-alpine as build-stage
+WORKDIR /usr/app
+COPY backend/package.json .
+RUN npm install --quiet
+COPY ./backend .
+#RUN node server
+EXPOSE 3000
+CMD [ "node", "app.js" ]
+#RUN npm run

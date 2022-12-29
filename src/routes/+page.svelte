@@ -1,4 +1,5 @@
 <script>
+  export const prerender = true;
   import { onMount } from 'svelte';
   import Header from "../components/header/index.svelte";
   import Toolbar from "../components/toolbar/index.svelte";

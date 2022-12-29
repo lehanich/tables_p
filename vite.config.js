@@ -4,6 +4,7 @@ import { resolve } from 'path'
 const pathSrc = path.resolve(__dirname, "./src");
 
 /** @type {import('vite').UserConfig} */
+
 const config = {
 	plugins: [sveltekit()],
 	test: {
@@ -11,7 +12,10 @@ const config = {
 	},
 	server: {
 		proxy: {
-			'/api': 'http://localhost:3000',
+			'/api': `http://${process.env.NODE_ENV === "production" ||
+			process.env.NODE_ENV === "docker" || 
+			process.env.npm_lifecycle_event === "devdocker"
+			? "excel-backend" : "localhost" }:3000`, // localhost
 		},
 	},
 	// scss: {
