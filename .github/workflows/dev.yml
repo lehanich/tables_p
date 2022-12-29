@@ -1,0 +1,52 @@
+name: CI to Docker Hub
+
+# Controls when the workflow will run
+on:
+  # Triggers the workflow on push or pull request events but only for the master branch
+  push:
+    branches: [ dev ] 
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+  # This workflow contains a single job called "build"
+  build:
+    # The type of runner that the job will run on
+    runs-on: ubuntu-latest
+
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - name: Check Out Repo
+        uses: actions/checkout@v3
+
+      # Runs a single command using the runners shell   
+      - name: Install SSH Key
+        uses: shimataro/ssh-key-action@v2
+        with:
+          key: ${{ secrets.DOCKER_SSH_PRIVATE_KEY }}
+          known_hosts: unnecessary
+      - name: Adding Known Hosts
+        run: ssh-keyscan -p ${{ secrets.SSH_PORT}} -H ${{ secrets.SSH_HOST }}  >> ~/.ssh/known_hosts
+      - name: Yandex Deployment
+        uses: appleboy/ssh-action@master
+        with:
+          remote_docker_host: ${{ secrets.DOCKER_HOST }}
+          ssh_private_key: ${{ secrets.DOCKER_SSH_PRIVATE_KEY }}
+          ssh_public_key: ${{ secrets.DOCKER_SSH_PUBLIC_KEY }}
+#           deployment_mode: docker-compose
+#           deploy_path: /opt/excel
+#           copy_stack_file: false          
+#           stack_file_name: docker-compose.yml          
+#           args: up -d --build 
+          script: |
+            sudo -i
+            cd /opt/excel/src/tables_p/
+            git fetch origin dev
+            git reset --hard FETCH_HEAD
+            git clean -d -f --exclude secrets
+            docker-compose -f ../../docker-compose.yml down
+            docker-compose build
+            docker-compose -f ../../docker-compose.yml up
+      - name: Print Info
+        run: echo "Deployed at yandex ayakimkin"
+        
