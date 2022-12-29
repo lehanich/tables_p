@@ -1,12 +1,13 @@
 import { writable } from 'svelte/store';
 import { browser } from "$app/environment";
+import Matrix from "./base/Matrix";
 
 export const tableStore = (key, initial: number) => {                 // receives the key of the local storage and an initial value
-  const tableData = [];
+  const tableData = new Matrix(26,21);
 
-  for (let i=0; i < initial; i++) {
-    tableData.push([])
-  }
+  // for (let i=0; i < initial; i++) {
+  //   tableData.push([])
+  // }
 
   const { subscribe, set, update } = writable(tableData);
   
