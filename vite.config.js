@@ -37,7 +37,7 @@ const config = {
     },
 		rollupOptions: {
 			input: {
-				main: resolve(pathSrc, 'app.html'),
+				// main: resolve(pathSrc, 'app.html'),
 					// main: "index.html",
 					// worker: "src/lib/"
 			}
