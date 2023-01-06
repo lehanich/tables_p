@@ -1,6 +1,7 @@
 <script lang="ts">
   import { onMount, getContext, afterUpdate, createEventDispatcher } from 'svelte';
   import {repeat, filter, seq, once, any, on, every2, onlyEvent, onlyEvents } from "../../lib/eventIter.ts";
+  import { stateCoordinates } from "../../lib/data/stores";
 
   const dispatch = createEventDispatcher();
 
@@ -44,10 +45,12 @@
     cursor: "-webkit-grabbing"
   }
 
+  $: selectArea = { ...$$props.borderCover }
+  $: selectCover = { ...$$props.selectCover }
   afterUpdate(() => {
     // console.log($$props)
-    selectArea = { ...$$props.borderCover }
-    selectCover = { ...$$props.selectCover }
+    // selectArea = { ...$$props.borderCover }
+    // selectCover = { ...$$props.selectCover }
     console.log("111 SELECT AREA", selectCover, getSelectArea())
     borderCover = {
       ...borderCover,
@@ -141,9 +144,9 @@
               yOffset = ev.pageY - borderCoverMove.top;
               console.log(xOffset, yOffset)
 
-              dispatch('nullCoordinates', { coords: [...deltaCols] });
+              // dispatch('nullCoordinates', { coords: [...deltaCols] });
               // dispatch('nullCoordinates', { coords: [ borderCover.left,  borderCover.top] });
-              console.log("444 11 old offset ", deltaCols, borderCover.left, borderCover.top)
+              // console.log("444 11 old offset ", deltaCols, borderCover.left, borderCover.top)
               deltaCols = [0,0];
               deltaCoordinates = [0,0];
               
@@ -157,7 +160,7 @@
                   //stop
                   console.dir( xEl)
                   select[0][0] = i
-                  console.log("click x ", xEl.offsetLeft)
+                  // console.log("click x ", xEl.offsetLeft)
                 }
                 i++
               }
@@ -167,8 +170,8 @@
                 // console.log("y", yEl.offsetTop + offsetTop, yEl.offsetHeight, yEl.clientHeight)
                 let pageY = ev.pageY <= selectCover.top  + offsetTop ? selectCover.top  + offsetTop + 1 :
                   ev.pageY >= selectCover.top + selectCover.height  + offsetTop ? selectCover.top + selectCover.height  + offsetTop - 2  : ev.pageY ;
-                  console.log("click y 111 9-- ",ev.pageY, pageY, selectCover.top  + offsetTop,
-                  selectCover.top + selectCover.height  + offsetTop)
+                  // console.log("click y 111 9-- ",ev.pageY, pageY, selectCover.top  + offsetTop,
+                  // selectCover.top + selectCover.height  + offsetTop)
 
                   if(pageY > yEl.offsetTop + offsetTop && pageY < yEl.offsetTop + offsetTop + yEl.offsetHeight) {
                   //stop
@@ -176,15 +179,15 @@
                   // console.dir(rows)
                   select[0][1] = i
                   // console.log("click y 111 9-- ",ev.pageY, pageY, borderCover.top  + offsetTop , borderCover.top + borderCover.height  + offsetTop)
-                  console.log("click y 111 9-- ",ev.pageY, pageY, selectCover.top  + offsetTop , selectCover.top + selectCover.height  + offsetTop)
-                  console.log("click y 111 9 ",i, yEl.offsetTop)
-                  console.dir(yEl);
+                  // console.log("click y 111 9-- ",ev.pageY, pageY, selectCover.top  + offsetTop , selectCover.top + selectCover.height  + offsetTop)
+                  // console.log("click y 111 9 ",i, yEl.offsetTop)
+                  // console.dir(yEl);
                 }
                 i++
               }
             }
-            
-            console.log(2, select[0]);
+            // console.log("111 925", selectCover, $stateCoordinates.selectSpace)
+            console.log("111 921 select[0]", select[0]);
 
             if (select[0][0] !== null && select[0][0] !== undefined &&
             select[0][1] !== null && select[0][1] !== undefined && ev.type === "mousemove") {
@@ -211,10 +214,10 @@
                   // selLeft = firstX.offsetLeft
                   // borderCover.left = borderCover.left + xEl.offsetLeft
                   //  console.log("selLeft", xEl)
-                  console.log("111 5",ev.pageX , xEl.offsetLeft , xEl.offsetLeft+ firstX.offsetWidth + deltaCols[0])
+                  // console.log("111 5",ev.pageX , xEl.offsetLeft , xEl.offsetLeft+ firstX.offsetWidth + deltaCols[0])
                   if(ev.pageX > xEl.offsetLeft && ev.pageX < xEl.offsetLeft+ firstX.offsetWidth + deltaCols[0] ) {
                     // borderCover.left = borderCover.left + firstX.offsetLeft
-                    console.log("111 6",xEl.offsetLeft)
+                    // console.log("111 6",xEl.offsetLeft)
                     deltaCols[0] = i - select[0][0]; // deltaCols[0] + xEl.offsetWidth
                     deltaCoordinates[0] = xEl.offsetLeft - firstX.offsetLeft;
                   }
@@ -227,16 +230,8 @@
                   // if(ev.pageX < xEl.offsetLeft && ev.pageX < firstX.offsetLeft +  firstX.offsetWidth - deltaCols[0]) {
                   if(ev.pageX > xEl.offsetLeft && ev.pageX < firstX.offsetLeft + deltaCols[0]  && ev.pageX < xEl.offsetLeft + xEl.offsetWidth) {
                     // selWidth += xEl.offsetWidth;
-
-                    // borderCover.left = borderCover.left - xEl.offsetLeft
-                    // console.log("selLeft", selLeft);
-                    // borderCover.left = borderCover.left + firstX.offsetLeft
-                    // console.log("1112 7",xEl.offsetLeft, firstX.offsetLeft)
                     deltaCols[0] = i - select[0][0]; //deltaCols[0] - xEl.offsetWidth;
                     deltaCoordinates[0] = xEl.offsetLeft - firstX.offsetLeft;
-                    // console.log("444 rrr", i, select[0][0]);
-                    // console.log("444 rrr - ", ev.pageX , xEl.offsetLeft , firstX.offsetLeft + deltaCols[0])
-                    // console.log("1112 8",deltaCols[0])
                   }
                   // console.log("selLeft", selLeft);
                 }
@@ -248,10 +243,6 @@
                 // console.log(ev)
                 for(let i = select[0][1] ; i < rows.length -1; i++ ) {
                   yEl = rows[i];
-                  // console.log(i, yEl)
-                  // selTop = firstY.offsetTop ;
-                  // console.log(10,ev.pageY, yEl.offsetTop + offsetTop,
-                  // firstY.offsetTop + firstY.offsetHeight + offsetTop)
                   if(ev.pageY > yEl.offsetTop + offsetTop && ev.pageY < yEl.offsetTop + yEl.offsetHeight + offsetTop) {
                     // selHeight += yEl.offsetHeight;
                     // console.log("111 9 8",yEl.offsetTop,firstY.offsetTop,yEl.offsetTop -  firstY.offsetTop)
@@ -270,22 +261,10 @@
                       // console.log("111 9 9-",ev.pageY, yEl.offsetTop+ offsetTop,yEl.offsetTop + yEl.offsetHeight + offsetTop)
                       deltaCols[1] = i - select[0][1];
                       deltaCoordinates[1] =  yEl.offsetTop -  firstY.offsetTop;
-                    // selHeight += yEl.offsetHeight;
-
-                    // selTop = firstY.offsetTop  + firstY.offsetHeight - selHeight
-
-                    // if (ev.pageX > firstX.offsetLeft) {
-                    //   //// selCell.top = firstY.offsetTop + offsetTop + firstY.offsetHeight - selHeight
-                    // } else {
-                    //   //// selCell.top = firstY.offsetTop + offsetTop + firstY.offsetHeight - selHeight
-                    //   selLeft = firstX.offsetLeft +  firstX.offsetWidth - selWidth
-                    //   // console.log("selLeft", selLeft);
-                    // }
-
                   }
                 }
               }
-              console.log(111,deltaCols)
+              console.log("111 777 deltaCols",deltaCols)
             }
 
             if (ev.type === "mouseup") {
@@ -295,7 +274,9 @@
               
               moveX = null;
               moveY = null;
-              console.log("111 922 ",deltaCols)
+              console.log("111 922 stateCoordinates.select", $stateCoordinates.select)
+              console.log("111 922 firstY.offsetTop:",select[0][1],rows[select[0][1]].offsetTop)
+              console.log("111 922 deltaCoordinates, deltaCols ",deltaCoordinates, deltaCols)
               dispatch('newSelectCoords', { coords: [...deltaCoordinates], cols: [...deltaCols] });
               // dispatch('newSelectCoords', { coords: [0,0] });
 

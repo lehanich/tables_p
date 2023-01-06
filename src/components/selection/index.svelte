@@ -7,6 +7,8 @@
   import SelectionBorderView from "./selectionBorder.svelte";
   import SelectionCellView from "./selectionCell.svelte";
   import SelectionButtonView from "./selectionButton.svelte";
+  import { stateCoordinates } from "../../lib/data/stores";
+
   // import SelectionMoveView from "./moveSelection.svelte";
 
   const { getSelect, getCells, getTable } = getContext("show");
@@ -23,6 +25,7 @@
   export let borderCover;
   export let select;
   export let selectSpace = { ...selSpace };
+  export let selectCellCoords = { ...selCell };
 
   let selWidth = 0
   let selHeight = 0;
@@ -58,7 +61,7 @@
     console.log("444 9", selCell,selSpace)
     selectSpace = { ...selSpace }
     console.log(selectSpace)
-    dispatch('updateSpace', selectSpace);
+    dispatch('updateSpace', {selectSpace, selCell});
   })
 
   const loadWorker = async () => {
@@ -114,6 +117,8 @@
                   // console.log("666 1", select[0], select[1])
                   select[0][0] = i
                   select[1][0] = i
+                  // console.dir(setCoordinates)
+                  // setCoordinates(select[0][0],select[0][1])
                   // console.log("666 2", select[0], select[1])
 
                   selCellLeft = xEl.offsetLeft
@@ -143,6 +148,8 @@
                   // console.dir(rows)
                   select[0][1] = i
                   select[1][1] = i
+                  // setCoordinates(select[0][0],select[0][1])
+                  dispatch('selectCell', { select });
                   selCellTop =yEl.offsetTop ;
                   selCellHeight = yEl.offsetHeight
 
