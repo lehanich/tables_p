@@ -1,5 +1,6 @@
 import { writable } from 'svelte/store';
 import { stateTable } from "../../lib/data/stores";
+import { stateTableMatrix } from "../../lib/data/stores";
 
 let data
 stateTable.subscribe(value => {
