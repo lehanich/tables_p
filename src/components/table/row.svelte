@@ -1,3 +1,5 @@
+<svelte:options accessors={true}/>
+
 <script lang="ts">
   import RowResize from "../ui/row-resize/index.svelte"
   export let row: HTMLDivElement;
