@@ -2,27 +2,22 @@
   import { onMount, getContext, setContext, afterUpdate,createEventDispatcher } from 'svelte';
   import {createEventbusDispatcher} from '../../lib/eventBus';
 	import { select_option } from 'svelte/internal';
-  import {repeat, filter, seq, once, any, on, every, onlyEvent, onlyEvents } from "../../lib/eventIter.ts";
+  import {repeat, filter, seq, once, any, on, every, onlyEvent, onlyEvents } from "../../lib/eventIter";
   import SelectionAreaView from "./selectionArea.svelte";
   import SelectionBorderView from "./selectionBorder.svelte";
   import SelectionCellView from "./selectionCell.svelte";
   import SelectionButtonView from "./selectionButton.svelte";
-  // import SelectionMoveView from "./moveSelection.svelte";
+  import { stateCoordinates } from "../../lib/data/stores";
 
   const { getSelect, getCells, getTable } = getContext("show");
-
-  // setContext("select", {
-  //   getSelectArea: () => selectSpaceArea,
-  // })
-
-  // const dispatch = createEventDispatcher();
   const dispatch = createEventbusDispatcher(); // createEventDispatcher();
-  console.log("event bus",dispatch);
-  console.dir(dispatch);
+  // console.log("event bus",dispatch);
+  // console.dir(dispatch);
 
   export let borderCover;
   export let select;
   export let selectSpace = { ...selSpace };
+  export let selectCellCoords = { ...selCell };
 
   let selWidth = 0
   let selHeight = 0;
@@ -32,8 +27,6 @@
   let selCellTop = 0;
   let selCellWidth = 0;
   let selCellHeight = 0;
-
-
 
   $: selCell = {
     height: selCellHeight,
@@ -49,199 +42,156 @@
   }
 
   afterUpdate(() => {
-    console.log("4444 1", $$props.deltaCols)
-    console.log("444 6", borderCover)
-    // selLeft += $$props.deltaCols[0]
-    // selTop += $$props.deltaCols[1]
-    // selCellLeft += $$props.deltaCols[0]
-    // selCellTop +=  $$props.deltaCols[1]
-    console.log("444 9", selCell,selSpace)
     selectSpace = { ...selSpace }
-    console.log(selectSpace)
-    dispatch('updateSpace', selectSpace);
+    dispatch('updateSpace', {selectSpace, selCell});
   })
 
-  const loadWorker = async () => {
-    // (async () => {
-      var shiftX = 0;
-      var shiftY = 0;
+  function onInit(xEl,yEl) {
+    setXparams(xEl);
+    setYparams(yEl);
+  }
 
-      console.log(getSelect)
-      console.log(getSelect())
+  function setXparams(element) {
+    selCellLeft = element.offsetLeft;
+    selCellWidth = element.offsetWidth;
 
-      setTimeout(() => {
-        let cells = getCells();
-        if (cells) {
-          console.log(7,cells)
+    selLeft = element.offsetLeft;
+    selWidth = element.offsetWidth;
+  }
+
+  function setYparams(element) {
+    selCellTop = element.offsetTop;
+    selCellHeight = element.offsetHeight;
+
+    selTop = element.offsetTop;
+    selHeight = element.offsetHeight;
+  }
+
+  const onLoad = async () => {
+    var shiftX = 0;
+    var shiftY = 0;
+
+    setTimeout(() => {
+      let cells = getCells();
+
+      if(getSelect() && typeof getSelect()[Symbol.asyncIterator] === 'function') {
+        let offsetTop = getTable().offsetTop;
+        let offsetLeft = getTable().offsetLeft;
+
+        let rows = new Array();
+        let i = 0;
+        
+        for (const child of getTable().children) {
+          if(child.classList.contains("row")) {
+            rows[i] = child;
+            i++
+          }
         }
 
-        if(getSelect() && typeof getSelect()[Symbol.asyncIterator] === 'function') {
-          let offsetTop = getTable().offsetTop;
-          let offsetLeft = getTable().offsetLeft;
+        select = [[], []]; // Array(2).fill(Array(2)); // first last
+        let xCursor = cells[0][Symbol.iterator]();
+        let yCursor = cells[Symbol.iterator]();
+        let first;
 
-          let rows = new Array();
-          let i = 0;
-          for (const child of getTable().children) {
-            if(child.classList.contains("row")) {
-              rows[i] = child;
-              i++
-            }
-          }
-
-          select = [[], []]; // Array(2).fill(Array(2)); // first last
-          let xCursor = cells[0][Symbol.iterator]();
-          let yCursor = cells[Symbol.iterator]();
-          let first;
+        onInit(cells[0][0],rows[1]);
 
         (async() => {
           for await (const ev of getSelect()) {
-            console.log(ev) //ev.currentTarget
-
             let xEl = xCursor.next();
             let yEl = yCursor.next();
 
-            if((ev.value && ev.value.type === "mousedown") || ev.type === "mousedown") 
-            {
+            if((ev.value && ev.value.type === "mousedown") || ev.type === "mousedown") {
               dispatch('nullDelta', { coords: [0,0] });
-              // dispatch('nullDelta');
               let i = 0;
+
               for (let xEl of cells[0]) {
-                // console.log("555",ev.pageX , xEl.offsetLeft ,xEl.offsetLeft + xEl.offsetWidth)
                 if(ev.pageX > xEl.offsetLeft && ev.pageX < xEl.offsetLeft + xEl.offsetWidth) {
-                  //stop
-                  // console.log( "555", i, xEl)
-                  // console.log("555",ev.pageX , xEl.offsetLeft ,xEl.offsetLeft + xEl.offsetWidth)
-                  // console.log("666 1", select[0], select[1])
-                  select[0][0] = i
-                  select[1][0] = i
-                  // console.log("666 2", select[0], select[1])
-
-                  selCellLeft = xEl.offsetLeft
-                  selCellWidth = xEl.offsetWidth
-
-                  selLeft = xEl.offsetLeft
-                  selWidth = xEl.offsetWidth
-                  // console.log("selSpace",selSpace)
+                  select[0][0] = i;
+                  select[1][0] = i;
+                  setXparams(xEl);
                 }
-                i++
+                i++;
               }
-            } else {
-              console.log(ev)
             }
             //y
-
-            if((ev.value && ev.value.type === "mousedown") || ev.type === "mousedown")
-            {
+            if((ev.value && ev.value.type === "mousedown") || ev.type === "mousedown") {
               let i = 0;
-              // for (let yEl of cells) {
-                // console.log("selSpace 1 ",rows[0].offsetTop);
               for (const yEl of rows) {
-                // console.log("y", yEl.offsetTop + offsetTop, yEl.offsetHeight, yEl.clientHeight)
                 if(ev.pageY > yEl.offsetTop + offsetTop && ev.pageY < yEl.offsetTop + offsetTop + yEl.offsetHeight) {
-                  //stop
-                  console.dir( yEl)
-                  // console.dir(rows)
-                  select[0][1] = i
-                  select[1][1] = i
-                  selCellTop =yEl.offsetTop ;
-                  selCellHeight = yEl.offsetHeight
-
-                  selTop =yEl.offsetTop ;
-                  selHeight = yEl.offsetHeight
-
-                  // console.log("selSpace",selSpace, yEl.offsetTop ,  offsetTop)
+                  select[0][1] = i;
+                  select[1][1] = i;
+                  dispatch('selectCell', { select });
+                  setYparams(yEl);
                 }
                 i++
               }
-            } else {
-              // console.log(ev)
             }
-            // console.log(555,select)
+
             if(select[0][0] !== null && select[0][0] !== undefined &&
-            select[0][1] !== null && select[0][1] !== undefined &&  ev.type === "mousemove") {
+              select[0][1] !== null && select[0][1] !== undefined &&  ev.type === "mousemove") {
+
               let firstX = cells[0][select[0][0]];
               let firstY = rows[select[0][1]]
-              selWidth = firstX.offsetWidth
-              selHeight = firstY.offsetHeight
+              selWidth = firstX.offsetWidth;
+              selHeight = firstY.offsetHeight;
 
-              // console.log("555",ev.pageX, firstX.offsetLeft)
               if(ev.pageX > firstX.offsetLeft) {
-                // console.log(ev)
-                
                 for(let i = select[0][0] ; i < cells[0].length; i++ ) {
                   xEl = cells[0][i];
-                   selLeft = firstX.offsetLeft
-                  //  console.log("555 ", ev.pageX , xEl.offsetLeft ,  firstX.offsetLeft + selWidth)
+                   selLeft = firstX.offsetLeft;
+
                   if(ev.pageX > xEl.offsetLeft && ev.pageX > firstX.offsetLeft + selWidth) {
                     selWidth += xEl.offsetWidth;
-                    select[1][0] = i+1
+                    select[1][0] = i+1;
                   }
-                  // console.log("selLeft", selLeft);
                 }
               } else {
                 for(let i = select[0][0] ; i >=0 ; i-- ) {
                   xEl = cells[0][i];
                   if(ev.pageX < xEl.offsetLeft && ev.pageX < firstX.offsetLeft +  firstX.offsetWidth - selWidth) {
                     selWidth += xEl.offsetWidth;
-
-                    selLeft = firstX.offsetLeft +  firstX.offsetWidth - selWidth
-                    select[1][0] = i-1
-                    // console.log("selLeft", selLeft);
+                    selLeft = firstX.offsetLeft +  firstX.offsetWidth - selWidth;
+                    select[1][0] = i-1;
                   }
-                  // console.log("selLeft", selLeft);
                 }
               }
               if(ev.pageY > firstY.offsetTop + offsetTop ) {
-                // console.log(ev)
                 for(let i = select[0][1] + 1; i < rows.length -1; i++ ) {
                   yEl = rows[i];
-                  // console.log(i, yEl)
                   selTop = firstY.offsetTop ;
 
                   if(ev.pageY > yEl.offsetTop + offsetTop && ev.pageY > firstY.offsetTop + offsetTop + selHeight) {
                     selHeight += yEl.offsetHeight;
-                    select[1][1] = i
+                    select[1][1] = i;
                   }
                 }
               } else {
                 for(let i = select[0][1]-1; i >= 0; i-- ) {
                   yEl = rows[i];
-                  // console.log(ev.pageY , yEl.offsetTop + offsetTop + yEl.offsetHeight)
+
                   if(ev.pageY < yEl.offsetTop + offsetTop + yEl.offsetHeight &&
                     ev.pageY < firstY.offsetTop + offsetTop + firstY.offsetHeight - selHeight) {
+
                     selHeight += yEl.offsetHeight;
+                    selTop = firstY.offsetTop  + firstY.offsetHeight - selHeight;
+                    select[1][1] = i;
 
-                    selTop = firstY.offsetTop  + firstY.offsetHeight - selHeight
-                    select[1][1] = i
                     if (ev.pageX > firstX.offsetLeft) {
-                      //// selCell.top = firstY.offsetTop + offsetTop + firstY.offsetHeight - selHeight
                     } else {
-                      //// selCell.top = firstY.offsetTop + offsetTop + firstY.offsetHeight - selHeight
-                      selLeft = firstX.offsetLeft +  firstX.offsetWidth - selWidth
-                      select[1][1] = i
-                      // console.log("selLeft", selLeft);
+                      selLeft = firstX.offsetLeft +  firstX.offsetWidth - selWidth;
+                      select[1][1] = i;
                     }
-
                   }
                 }
               }
             }
           }
-          })()
+          })();
         }
       },500)
-
-      // function isIterable(input) {  
-      //   if (input === null || input === undefined) {
-      //     return false
-      //   }
-
-      //   return typeof input[Symbol.iterator] === 'function'
-      // }
-    // })()
   }
 
-  onMount(loadWorker);
+  onMount(onLoad);
 </script>
 
 <template lang="pug">
