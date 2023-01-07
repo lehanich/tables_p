@@ -1,10 +1,16 @@
 import { writable } from 'svelte/store';
-import { stateTable } from "../../lib/data/stores";
+import { stateTable, stateTableMatrix, stateCoordinates, inputStore } from '../../lib/data/stores';
 
 let data
-stateTable.subscribe(value => {
-    //   console.log(value);
+stateTableMatrix.subscribe(value => {
+      console.log(value);
       data = value;
+});
+
+let input
+inputStore.subscribe(value => {
+      console.log(value);
+      input = value;
 });
 
 function readChunks(reader: ReadableStreamDefaultReader<Uint8Array>) {
@@ -47,9 +53,9 @@ function* parseChunk(chunk: Uint8Array) {
 }
 
 // export const data = writable(new Array(20+1).fill(new Array(26)));
-const dataInit = writable([[],[],[],
-    [],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],
-  ]);
+// const dataInit = writable([[],[],[],
+//     [],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],
+//   ]);
 
 export function importCSV (files: FileList) {
     try {
@@ -84,7 +90,23 @@ export function importCSV (files: FileList) {
                     // console.log($data)
                     stringNum++
                 }
-                stateTable.update(arr => [...newData, ...arr]); //[...arr, arrString]);
+                // stateTable.update(arr => [...newData, ...arr]); //[...arr, arrString]);
+
+                const start = stateCoordinates.get().select[0];
+                // console.log(data)
+                // console.log($data)
+                for(let j=0; j < newData.length; j++ ) {
+                    for(let k=0; k < newData.length; k++ ) {
+                        // stateTableMatrix.setElement = {x: start[0] + k, y: start[1] + j - 1, value: newData[j][k]};
+                        data.setElement(start[0] + k, start[1] + j - 1, newData[j][k]);
+                        // stateTableMatrix.set({x: start[0] + k, y: start[1] + j - 1, value: newData[j][k]});
+                    }
+                }
+                // input =  newData[0][0];
+                // inputStore.update(input => input)
+                inputStore.set(newData[0][0])
+                console.log(input, inputStore)
+                stateTableMatrix.update(data => data)
             }
         })
 
