@@ -1,6 +1,8 @@
-import { writable } from 'svelte/store'
-import { tableStore } from './storeTable'
-import { coordinatesStore } from "./storeCoordinates"
+import { writable } from 'svelte/store';
+import { tableStore } from './storeTable';
+import { tableStoreMatrix } from './storeTableMatrix';
+import { coordinatesStore } from "./storeCoordinates";
+import { cellInputStore } from "./storeCellInput";
 // export const alert = writable('Welcome to the to-do list app!')
 
 // const initialTodos = [
@@ -11,3 +13,6 @@ import { coordinatesStore } from "./storeCoordinates"
 // export const todos = localStore('mdn-svelte-todo', initialTodos)
 export const stateTable = tableStore("table", 21);
 export const stateCoordinates = coordinatesStore();
+export const inputStore = cellInputStore("cellInput", "");
+export const stateTableMatrix = tableStoreMatrix("matrix", [26, 21, ""]);
+export const stateTableStyles = tableStoreMatrix("matrix", [26,21, {}]);
