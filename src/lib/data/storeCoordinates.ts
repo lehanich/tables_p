@@ -1,4 +1,5 @@
 import { writable } from 'svelte/store';
+import { toChar } from "../tableHeplers";
 
 export const coordinatesStore = () => {
   const data: Coordinates = {
@@ -27,7 +28,27 @@ export const coordinatesStore = () => {
       left: 0,
       top: 0,
       width: 0
-    }
+    },
+    editCellCols: [0, 1],
+    editCell: {
+      height: 0,
+      left: 0,
+      top: 0,
+      width: 0
+    },
+    selectFormulaSpace: {
+      height: 0,
+      left: 0,
+      top: 0,
+      width: 0
+    },
+    selectFormulaBorder: {
+      height: 0,
+      left: 0,
+      top: 0,
+      width: 0
+    },
+    functionCell: null
   };
 
   const store = writable(data);
@@ -90,5 +111,26 @@ export const coordinatesStore = () => {
         return store;
       });
     },
+    collRange: () => {
+      console.log(data)
+      return [[
+        Math.min(data.select[0][0], data.select[1][0]),
+        Math.min(data.select[0][1], data.select[1][1])
+      ],[
+        Math.max(data.select[0][0], data.select[1][0]),
+        Math.max(data.select[0][1], data.select[1][1])
+      ]]
+    },
+    collRangeName: () => {
+      return [[
+        String.fromCharCode(
+          Math.min(data.selectName[0][0].charCodeAt(), data.selectName[1][0].charCodeAt())),
+        Math.min(data.selectName[0][1], data.selectName[1][1])
+      ],[
+        String.fromCharCode(
+          Math.max(data.selectName[0][0].charCodeAt(), data.selectName[1][0].charCodeAt())),
+        Math.max(data.selectName[0][1], data.selectName[1][1])
+      ]]
+    }
   }
 }
