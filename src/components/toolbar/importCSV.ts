@@ -1,16 +1,16 @@
-import { writable } from 'svelte/store';
-import { stateTable, stateTableMatrix, stateCoordinates, inputStore } from '../../lib/data/stores';
+// import { writable } from 'svelte/store';
+import { stateTableMatrix, stateCoordinates, inputStore } from '../../lib/data/stores';
 
 let data
 stateTableMatrix.subscribe(value => {
-      console.log(value);
-      data = value;
+    console.log(value);
+    data = value;
 });
 
 let input
 inputStore.subscribe(value => {
-      console.log(value);
-      input = value;
+    console.log(value);
+    input = value;
 });
 
 function readChunks(reader: ReadableStreamDefaultReader<Uint8Array>) {
