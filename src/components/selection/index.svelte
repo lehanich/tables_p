@@ -88,7 +88,7 @@
           }
         }
 
-        select = [[], []]; // Array(2).fill(Array(2)); // first last
+        // select = [[], []]; // Array(2).fill(Array(2)); // first last
         let xCursor = cells[0][Symbol.iterator]();
         let yCursor = cells[Symbol.iterator]();
         let first;
