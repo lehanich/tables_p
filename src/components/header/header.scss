@@ -1,0 +1,15 @@
+.header {
+  position: absolute;
+  top: 0;
+  right: 0;
+  left: 0;
+  height: 34px;
+  padding: 8px 4px 0;
+  display: flex;
+  justify-content: space-between;
+
+  &__h1 {
+    font-size: 16px;
+    margin: 0;
+  }
+}
