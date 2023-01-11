@@ -12,10 +12,22 @@
           every, every2, onlyEvent, onlyEvents } from "../../lib/eventIter";
   import {clickOutside } from "../../lib/clickOutside";
   // import {data} from "../toolbar/importCSV";
-  import { stateTableMatrix,  stateCoordinates as sCoords, inputStore } from "../../lib/data/stores"; //stateTable as state,
-  import { stateTableMeta } from "../../lib/data/stores";
+  import { stateTableMatrix,
+    stateTableMeta,
+    stateCoordinates as sCoords,
+    inputStore } from "../../lib/data/stores"; //stateTable as state,
 	// import { beforeUpdate } from 'svelte/types/runtime/internal/lifecycle';
 
+  import FormulaParser, {ParserMathCols} from "../../lib/formula/FormulaParser";
+
+  import {createEventbusDispatcher} from '../../lib/eventBus';
+
+
+
+
+  const dispatch = createEventbusDispatcher();
+
+  console.log("history ",dispatch)
   // let generator = showEditCell2(true);
   let showEdit ;//= generator.next();
 
@@ -36,14 +48,19 @@
 
   $: showEditCell = showEdit || (showEditFormula ? CellEdit : null);
   $: cellEditMode = showEdit ? "text" : (showEditFormula ? "formula" : "text");
+  $: metaData = $stateTableMeta.array;
+
+
+
   function handleNullDelta(event) {
     deltaCoordinates = [0,0];
   }
+  // $: metaInfo = [...$stateTableMeta.print()];
 
   function handleNewCoords(event) {
-    console.log("777 11", event.detail.cols)
-    console.log("777 11", event.detail.coords)
-    console.log("777 11 -- selCoordinates deltaCols",$sCoords.select, event.detail.cols)
+    console.log("777 11 move", event.detail.cols)
+    console.log("777 11 move", event.detail.coords)
+    console.log("777 11 move -- selCoordinates deltaCols",$sCoords.select, event.detail.cols)
 
     $sCoords.editCellCols[0] +=  event.detail.coords[0];
     $sCoords.editCellCols[1] +=  event.detail.coords[1];
@@ -51,28 +68,80 @@
     deltaCoordinates[0] += event.detail.coords[0];
     deltaCoordinates[1] += event.detail.coords[1];
 
+    let undoCoordinates = [
+      [$sCoords.select[0][0],$sCoords.select[0][1]],
+      [$sCoords.select[1][0],$sCoords.select[1][1]]
+    ];
+
+    console.log("777 move save undoCoordinates ", undoCoordinates)
     sCoords.addDeltaCoordinates(event.detail.coords);
 
-    console.log("777 stateCoordinates start", $sCoords)
-    console.log("777 deltaCoordinates --",deltaCoordinates)
+    console.log("777 stateCoordinates start move", $sCoords)
+    console.log("777 deltaCoordinates -- move",deltaCoordinates)
     console.dir($stateTableMatrix)
 
-    let bufferCoords = $stateTableMatrix.areaModify($sCoords.select, [0,0]);//deltaCols2
+    let bufferReadCoords = $stateTableMatrix.areaModify($sCoords.select, [0,0]);//deltaCols2
+    // let bufferCoordsMeta = $stateTableMeta.areaModify($sCoords.select, [0,0]);//deltaCols2
 
-    console.log("777 get coords ",bufferCoords)
+    console.log("777 bufferReadCoords get coords  move",bufferReadCoords)
 
-    let buffer = $stateTableMatrix.getMatrix(bufferCoords);
+    // readMatrix
 
-    console.log("777 33 --",buffer.print());
+    let buffer = $stateTableMatrix.getMatrix(bufferReadCoords);
+    let bufferMeta = $stateTableMeta.getMatrix(bufferReadCoords);
 
-    bufferCoords = $stateTableMatrix.areaModify($sCoords.select, event.detail.cols);
+    console.log("777 33 -- move",buffer.print());
 
-    console.log("777 push coords ",bufferCoords)
-    console.log("777 push delta ",event.detail.cols)
+    let bufferWriteCoords = $stateTableMatrix.areaModify($sCoords.select, event.detail.cols);
 
-    $stateTableMatrix.updateMatrix(bufferCoords, buffer)
+    // let bufferBackupCoords = $stateTableMatrix.areaModify($sCoords.select, event.detail.cols);
+    let bufferBackup = $stateTableMatrix.readMatrix(bufferWriteCoords);
+    let bufferBackupMeta = $stateTableMeta.readMatrix(bufferWriteCoords);
 
-    console.log("777 stateCoordinates end", $sCoords)
+    console.log("777 push coords bufferWriteCoords  move",bufferWriteCoords)
+    console.log("777 push delta bufferWriteCoords  move",event.detail.cols)
+
+    $stateTableMatrix.updateMatrix(bufferWriteCoords, buffer);
+    $stateTableMeta.updateMatrix(bufferWriteCoords, bufferMeta);
+
+    // stateTableMeta.update($stateTableMeta => $stateTableMeta)
+    $stateTableMeta = $stateTableMeta
+    // let test = $stateTableMeta.getElement(2,1);
+    // test.styles = null;
+
+    console.log("999 check style move",  $stateTableMeta.getElement(2,1))
+    console.log("777 ---", $stateTableMeta.print())
+    console.log("777 stateCoordinates end move", $sCoords)
+
+    sCoords.addDeltaCols(event.detail.cols);
+
+    dispatch('setHistory', {
+      type: "moveArea",
+      parameter: "",
+      valueRedo: {
+        // bufferWriteCoords,
+        // bufferReadCoords,
+        buffer,
+        bufferMeta,
+        coordinates: undoCoordinates,
+        coordinate: [event.detail.cols[0], event.detail.cols[1]],
+      },
+      valueUndo: {
+        // bufferReadCoords,
+        // bufferWriteCoords,
+        buffer,
+        bufferMeta,
+        bufferBackup,
+        bufferBackupMeta,
+        coordinates: [
+          [$sCoords.select[0][0],$sCoords.select[0][1]],
+          [$sCoords.select[1][0],$sCoords.select[1][1]]
+        ],
+        coordinate: [-1 * event.detail.cols[0], -1 * event.detail.cols[1]],
+      },
+      coordinate: [event.detail.cols[0], event.detail.cols[1]],
+      coordinates: undoCoordinates
+    });
 
 	}
 
@@ -84,6 +153,7 @@
   }
 
   function handleSelectCell(event) {
+    // $stateTableMeta = $stateTableMeta
     console.log("select")
     // showEdit =  CellEdit//null;
     console.dir(event.detail)
@@ -102,15 +172,24 @@
     // console.log("999 3 2",$stateTableMatrix.getElement($sCoords.editCellCols[0], $sCoords.editCellCols[1]))
     // console.log("999 3 3",$stateTableMatrix.getElement($sCoords.editCellCols[0], $sCoords.editCellCols[1]+1))
 
-    $inputStore = $stateTableMatrix.getElement($sCoords.editCellCols[0], $sCoords.editCellCols[1]-1)
+    console.log("777 meta -2", $stateTableMeta.getElement($sCoords.editCellCols[0], $sCoords.editCellCols[1]-2));
+    console.log("777 meta -1", $stateTableMeta.getElement($sCoords.editCellCols[0], $sCoords.editCellCols[1]-1));
+    console.log("777 meta 0", $stateTableMeta.getElement($sCoords.editCellCols[0], $sCoords.editCellCols[1]));
+    console.log("777 meta +1", $stateTableMeta.getElement($sCoords.editCellCols[0], $sCoords.editCellCols[1]+1));
+
+    let meta = $stateTableMeta.getElement($sCoords.editCellCols[0], $sCoords.editCellCols[1]-1);
+
+    $inputStore = meta && meta.formula ? meta.formula : $stateTableMatrix.getElement($sCoords.editCellCols[0], $sCoords.editCellCols[1]-1)
+    // $inputStore = $stateTableMatrix.getElement($sCoords.editCellCols[0], $sCoords.editCellCols[1]-1)
     
-    console.log($stateTableMatrix.print());
+    console.log("999 ", $stateTableMeta.print());
+    console.log("999 1", metaData)
     console.log("999 stateCoordinates end", $sCoords)
     console.log($sCoords.selectCell)
   }
 
   function handleDoubleClick(e) {
-    // console.log(e)
+    console.log("double click", e)
     // console.log("7779 ",$sCoords);
     // console.log("7779 $sCoords.functionCell.dataset ",$sCoords.functionCell.dataset);
     $sCoords.editCell = { //selectCell = {
@@ -119,6 +198,8 @@
       top: $sCoords.selectCell.top,
       left: $sCoords.selectCell.left,
     }
+
+    console.log("7779 doubleclick ", $sCoords.editCell);
 
     $sCoords.editCellCols = [+$sCoords.functionCell.dataset.column, +$sCoords.functionCell.dataset.row + 1];
     // $inputStore = $stateTableMatrix.getElement($sCoords.editCellCols[0], $sCoords.editCellCols[1])
@@ -137,6 +218,18 @@
   function handleClickOutsideCellEdit() {
     showEdit = null;
     showEditFormula = false;
+    let index = 0;
+
+    for(let meta of $stateTableMeta.print()) {
+      if (meta && meta.formula) {
+        let test = new FormulaParser(new ParserMathCols(meta.formula, $stateTableMatrix, ()=>{}));
+        // test.exec();
+        $stateTableMatrix
+          .updateById(index, test.exec())
+      }
+      index++;
+    }
+    $stateTableMatrix = $stateTableMatrix
   }
 
   function toChar(_: any, i:number) {
@@ -170,7 +263,7 @@
     // console.log("777 show edit showEditFormula", showEditFormula)
 
     console.log("666 borderCover selCoordinates ",$sCoords.editCellCols,$sCoords.select)
-    // console.log(matrix.print())
+    console.log("777 matrix", $stateTableMatrix.print())
     
     // console.log("666 stateCoordinates start 777 ", $sCoords)
 
@@ -192,6 +285,8 @@
     console.dir($sCoords.functionCell)
     console.log($inputStore)
 
+    console.log("999 2 ", $stateTableMatrix.print());
+    console.log("999 2 1", metaData)
     // console.log("666 cellEditMode", cellEditMode)
     // console.log("666 $sCoords.select ", $sCoords.select)
 
@@ -266,7 +361,11 @@
               bind:cell='{cells[index1][index2]}'
             )
               span.cell-content(
+                style="display: inline-block; width: 100%;"
                 style:font-weight='{$stateTableMeta.getElement(index2,index1).styles?.fontWeight}'
+                style:font-style='{$stateTableMeta.getElement(index2,index1).styles?.fontStyle}'
+                style:text-decoration='{$stateTableMeta.getElement(index2,index1).styles?.textDecoration}'
+                style:text-align='{$stateTableMeta.getElement(index2,index1).styles?.textAlign}'
               ) {@html $stateTableMatrix.getElement(index2,index1)}
       Selection(
         bind:select='{$sCoords.select}'
