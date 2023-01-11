@@ -1,5 +1,4 @@
 <!-- <svelte:options accessors immutable/> -->
-
 <script lang="ts">
   import { afterUpdate } from 'svelte';
 
@@ -7,17 +6,6 @@
   export let html: string = "";
 
   const { value, row, column } = $$props
-
-  // afterUpdate(() => {
-  //   html = value ?? html;
-  // });
-  // div.cell(
-  //   contenteditable
-  //   data-row="{row}"
-  //   data-column="{column}"
-  //   bind:innerHTML='{html}'
-  //   bind:this='{cell}'
-  // )
 </script>
 
 <template lang="pug">
