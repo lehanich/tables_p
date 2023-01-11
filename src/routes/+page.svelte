@@ -3,6 +3,7 @@
   import { onMount } from 'svelte';
   import Eventbus from '../components/base/EventBus.svelte';
   import Header from "../components/header/index.svelte";
+  // @ts-ignore
   import Toolbar from "../components/toolbar/index.svelte";
   import Formula from "../components/formula/index.svelte";
   import Table from "../components/table/index.svelte";
