@@ -8,6 +8,7 @@ const nullMeta: App.MetaData = {
     textAlign: "left"
   }
 }
+
 export default class MatrixEngine<T> implements App.MatrixEngine<T> {
   private data: T [];
   private matrixWidth: number;
@@ -64,12 +65,10 @@ export default class MatrixEngine<T> implements App.MatrixEngine<T> {
   }
 
   set element(value: T) {
-    console.log("777 matrix", value)
     this.setElement(this.x, this.y, value);
   }
 
   setElement(x: number, y: number, value: T): void {
-    console.log("777 matrix y", y, value)
     if (!this.data) {
       return undefined;
     }
@@ -152,7 +151,7 @@ export default class MatrixEngine<T> implements App.MatrixEngine<T> {
 
     for(const line of dataCoordinates) {
       for(let i = line[0]; i <= line[1]; i++) {
-        console.log("777 i line buffer[] ", i, line, buffer.getElement(i-line[0], lineIndex) )
+        // console.log("777 i line buffer[] ", i, line, buffer.getElement(i-line[0], lineIndex) )
 
         this.data[i] = <T>buffer.getElement(i-line[0], lineIndex);
         

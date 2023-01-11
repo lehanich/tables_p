@@ -19,9 +19,7 @@
   let showEditCell;
 
   const handleShowEditCell = (e) => {
-    console.log("777",e)
     showEditCell = true;
-    console.log("777 444", showEditCell)
     // setTimeout(() => {
     //   showEditCell = false
     // }, 500);
@@ -71,6 +69,7 @@
           break;
 
         case "input_formula":
+          console.log("history formula ",$sCoords.editCellCols, state.coordinate)
           if ($sCoords.editCellCols[0] === state.coordinate[0] &&
               $sCoords.editCellCols[1] === state.coordinate[1]) {
             $inputStore = value;
@@ -84,6 +83,29 @@
             );
             $stateTableMeta = $stateTableMeta;
           }
+          console.log("history check meta ",$stateTableMeta.print())
+          break;
+        
+        case "click_formula":
+          let formula = value.formula ? value.formula : undefined;
+
+          if ($sCoords.editCellCols[0] === state.coordinate[0] &&
+              $sCoords.editCellCols[1] === state.coordinate[1]) {
+            $inputStore = formula ? formula : value.data;
+          } else {
+            
+            $stateTableMatrix.setElement(state.coordinate[0],state.coordinate[1]-1, value.data);
+            $stateTableMatrix = $stateTableMatrix;
+          }
+
+          obj = $stateTableMeta.getElement(state.coordinate[0],state.coordinate[1]-1);
+          obj.formula = formula;
+          $stateTableMeta.setElement(
+                state.coordinate[0],
+                state.coordinate[1]-1,
+                obj
+          );
+          $stateTableMeta = $stateTableMeta;
           break;
 
         case "moveArea":

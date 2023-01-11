@@ -8,8 +8,6 @@ declare namespace App {
 	// interface PageData {}
 	// interface Platform {}
 
-	export type MatrixEngine = MatrixEngine;
-	export type Matrix = Matrix;
 	export type CoordinatesArea<Coordinate> = [Coordinate,Coordinate];
 	export type CoordinatesArray<Coordinate> = Coordinate[] | [];
 	export type Coordinate = [number, number];
