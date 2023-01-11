@@ -1,26 +1,26 @@
 import { writable } from 'svelte/store';
 import { browser } from "$app/environment";
 
-export const localStore = (key, initial) => {                 // receives the key of the local storage and an initial value
+export const localStore = (key, initial) => {
 
-  const toString = (value) => JSON.stringify(value, null, 2)  // helper function
-  const toObj = JSON.parse                                    // helper function
+  const toString = (value) => JSON.stringify(value, null, 2);
+  const toObj = JSON.parse;
   let saved = {}
 
   if (browser){
-    if (localStorage.getItem(key) === null) {                   // item not present in local storage
-      localStorage.setItem(key, toString(initial))              // initialize local storage with initial value
+    if (localStorage.getItem(key) === null) {
+      localStorage.setItem(key, toString(initial));
     }
 
-    saved = toObj(localStorage.getItem(key))              // convert to object
+    saved = toObj(localStorage.getItem(key));
   }
 
-  const { subscribe, set, update } = writable(saved)          // create the underlying writable store
+  const { subscribe, set, update } = writable(saved)
 
   return {
     subscribe,
     set: (value) => {
-      browser ? localStorage.setItem(key, toString(value)) : value              // save also to local storage as a string
+      browser ? localStorage.setItem(key, toString(value)) : value
       return set(value)
     },
     update
