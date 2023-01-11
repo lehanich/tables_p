@@ -43,9 +43,9 @@
   $: selectCover = { ...$$props.selectCover }
 
   function handleClick(e) { // костыль bug fix ???
-    if (mousedown) {
-      mousedown = !mousedown;
-    }
+    // if (mousedown) {
+    //   mousedown = !mousedown;
+    // }
   }
 
   afterUpdate(() => {
