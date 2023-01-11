@@ -42,8 +42,14 @@
   $: selectArea = { ...$$props.borderCover }
   $: selectCover = { ...$$props.selectCover }
 
+  function handleClick(e) { // костыль bug fix ???
+    if (mousedown) {
+      mousedown = !mousedown;
+    }
+  }
+
   afterUpdate(() => {
-    console.log("111 SELECT AREA", selectCover, getSelectArea());
+    console.log("SELECT AREA", selectCover, getSelectArea());
     
     borderCover = {
       ...borderCover,
@@ -108,6 +114,7 @@
         for await (const ev of activeSideActions) {
           let xEl = xCursor.next();
           let yEl = yCursor.next();
+          // console.log("move event", ev)
 
           if ((ev.value && ev.value.type === "mousedown") || ev.type === "mousedown") {
             mousedown = true
@@ -211,7 +218,8 @@
 <template lang="pug">
   div.selection-border-cover(
     bind:this='{activeSide}'
-    style="{borderCoverStyle}"
+    style='{borderCoverStyle}'
+    on:click='{handleClick}'
   )
 </template>
 
