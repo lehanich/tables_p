@@ -20,7 +20,13 @@ export default class MatrixEngine<T> implements App.MatrixEngine<T> {
   private y: number;
 
   constructor(x: number, y: number, initValue: "" | object = '') {
-    this.data = new Array(x*y);
+    console.log("matrix new size ", x, y);
+    try {
+      this.data = new Array(x*y);
+    } catch(e) {
+      console.log("!!!! matrix create error",e);
+      this.data = new Array(10);
+    }
     this.initValue = initValue;
     if (typeof initValue === "string") {
       this.data.fill(<T>"");
@@ -107,6 +113,7 @@ export default class MatrixEngine<T> implements App.MatrixEngine<T> {
   }
 
   readMatrix(area: App.CoordinatesArea<App.Coordinate>): App.MatrixEngine<any> {
+    console.log("matrix new boofer size", area[1][0] - area[0][0] + 1, area[1][1] - area[0][1] + 1)
     const buffer = new MatrixEngine(area[1][0] - area[0][0] + 1, area[1][1] - area[0][1] + 1);
     const bufferCoordinates = this.areaCoordinates(area);
     let lineIndex = 0;
@@ -124,6 +131,7 @@ export default class MatrixEngine<T> implements App.MatrixEngine<T> {
   }
 
   getMatrix(area: App.CoordinatesArea<App.Coordinate>): App.MatrixEngine<T> {
+    console.log("matrixnew boofer size", area[1][0] - area[0][0] + 1, area[1][1] - area[0][1] + 1)
     const buffer = new MatrixEngine(area[1][0] - area[0][0] + 1, area[1][1] - area[0][1] + 1);
     const bufferCoordinates = this.areaCoordinates(area);
     let lineIndex = 0;
