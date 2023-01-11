@@ -1,58 +1,37 @@
+/* eslint-disable no-self-assign */
 import { writable } from 'svelte/store';
 import { browser } from "$app/environment";
-import Matrix from "./base/Matrix";
+import Matrix from "./base/Matrix/Matrix";
 
-export const tableStoreMatrix = (key, initial: any[]) => {                 // receives the key of the local storage and an initial value
-  let tableData = new Matrix(...initial); 
-  //(initial[0],initial[1],initial[2])//(...initial);
+type T = "" | object;
 
-  // for (let i=0; i < initial; i++) {
-  //   tableData.push([])
-  // }
-
+export const tableStoreMatrix = (key: string, initial: [number, number, "" | object]) => {                 // receives the key of the local storage and an initial value
+  let tableData: App.Matrix<T> = new Matrix(...initial); 
   const { subscribe, set, update } = writable(tableData);
-  
+
   return {
       subscribe,
-      set: (value) => {
-        // console.log(2, value)
-        // browser ? localStorage.setItem(key, toString(value)) : value              // save also to local storage as a string
-        // const {x, y, val} = value
-        // tableData.setElement(x, y, val);
-        // tableData=tableData;
-        return set(value)
+      set: (value: App.Matrix<T>) => {
+        return set(value);
       },
-      // update(updater) {
-      //   let newValue: T;
-      //   underlyingStore.update(currentValue => {
-      //       newValue = updater(currentValue);
-      //       return newValue;
-      //   });
-      //   channel.postMessage(newValue);
-      // },
-      // update: (value) => {
-      //   // browser ? localStorage.setItem(key, toString(value)) : value;
-      //   console.log(1, value)
-      //   return value;
-      // }
       update,
-      areaModify(area, delta) {
+      areaModify(area: App.CoordinatesArea<App.Coordinate>, delta: App.Coordinate) {
         return tableData.areaModify(area, delta);
       },
-      getMatrix(area) {
+      getMatrix(area: App.CoordinatesArea<App.Coordinate>) {
         return tableData.getMatrix(area);
       },
-      getElement(x,y) {
+      getElement(x: number, y: number) {
         return tableData.getElement(x,y);
       },
-      set setElement(val) {
+      set setElement(val: {x: number, y: number, value: T}) {
         const {x, y, value} = val
         tableData.setElement(x, y, value);
-        tableData=tableData;
+        tableData = tableData;
       },
-      updateMatrix(area, buffer) {
+      updateMatrix(area: App.CoordinatesArea<App.Coordinate>, buffer: App.Matrix<T>) {
         tableData.updateMatrix(area, buffer);
-        tableData=tableData;
+        tableData = tableData;
       },
       print() {
         return tableData.print();
