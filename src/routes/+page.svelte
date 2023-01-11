@@ -87,11 +87,11 @@
 
         case "moveArea":
           let coords = $stateTableMatrix.areaModify(value.coordinates, value.coordinate);
+          let coords2 = $stateTableMatrix.areaModify(value.coordinates, [0,0]);
 
           $stateTableMatrix.updateMatrix(coords, value.buffer);
           $stateTableMeta.updateMatrix(coords, value.bufferMeta);
 
-          let coords2 = $stateTableMatrix.areaModify(value.coordinates, [0,0]);
           if (e.detail === "undo") { //( value.bufferBackup && value.bufferBackupMeta){
             $stateTableMatrix.updateMatrix(coords2, value.bufferBackup);
             $stateTableMeta.updateMatrix(coords2, value.bufferBackupMeta);
