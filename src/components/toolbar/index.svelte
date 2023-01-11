@@ -36,6 +36,9 @@
   function handleFunctions(e) {
     let coordsName = sCoords.collRangeName();
     let coords = sCoords.collRange();
+    
+    let historyOldVal = $stateTableMatrix.getElement($sCoords.editCellCols[0], $sCoords.editCellCols[1]);
+    let historyOldValMeta = $stateTableMeta.getElement($sCoords.editCellCols[0], $sCoords.editCellCols[1]);
 
     $sCoords.editCell = {
         height: $sCoords.functionCell.offsetHeight,
@@ -58,8 +61,25 @@
     formula = `=SUM(${coordsName[0][0]}${coordsName[0][1]}:${coordsName[1][0]}${coordsName[1][1]})`;
 
     // let row = +$sCoords.functionCell.dataset.row + 1;
-
     $inputStore = formula;
+
+    dispatch('setHistory', {
+        type: "click_formula",
+        parameter: historyOldValMeta ? "click_meta" : "click_data",
+        valueRedo: {
+          data: "",
+          formula
+        },
+        valueUndo: {
+          data: historyOldVal,
+          formula: historyOldValMeta.formula
+        },
+        coordinate: [$sCoords.editCellCols[0], $sCoords.editCellCols[1]],
+        coordinates: [
+          [$sCoords.select[0][0],$sCoords.select[0][1]],
+          [$sCoords.select[1][0],$sCoords.select[1][1]]
+        ] //selectFormulaSpace
+    });
   }
 
   function handleBold(e) {
