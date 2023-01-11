@@ -1,6 +1,5 @@
 <script lang="ts">
   import { onMount, setContext, afterUpdate, beforeUpdate, tick } from 'svelte';
-  // import {data as state } from "../toolbar/importCSV";
   import Eventbus from '../base/EventBus.svelte';
   import Row from "./row.svelte";
   import Column from "./column.svelte";
@@ -11,19 +10,21 @@
   import {repeat, filter, seq, once, any, on,
           every, every2, onlyEvent, onlyEvents } from "../../lib/eventIter";
   import {clickOutside } from "../../lib/clickOutside";
-  // import {data} from "../toolbar/importCSV";
-  import { stateTableMatrix,  stateCoordinates as sCoords, inputStore } from "../../lib/data/stores"; //stateTable as state,
-  import { stateTableMeta } from "../../lib/data/stores";
-	// import { beforeUpdate } from 'svelte/types/runtime/internal/lifecycle';
+  import { stateTableMatrix,
+    stateTableMeta,
+    stateCoordinates as sCoords,
+    inputStore } from "../../lib/data/stores"; //stateTable as state,
 
-  // let generator = showEditCell2(true);
+  import FormulaParser, {ParserMathCols} from "../../lib/formula/FormulaParser";
+  import {createEventbusDispatcher} from '../../lib/eventBus';
+
+  const dispatch = createEventbusDispatcher();
   let showEdit ;//= generator.next();
-
-  export let showEditFormula
   let selectSpace: AsyncGenerator; //<HTMLElementEventMap>;
   let table: DOMPoint;
   let deltaCoordinates: [number, number] = [0, 0];
 
+  export let showEditFormula
   export const cells = [];
 
   setContext("show", {
@@ -36,14 +37,17 @@
 
   $: showEditCell = showEdit || (showEditFormula ? CellEdit : null);
   $: cellEditMode = showEdit ? "text" : (showEditFormula ? "formula" : "text");
+  $: metaData = $stateTableMeta.array;
+
   function handleNullDelta(event) {
     deltaCoordinates = [0,0];
   }
+  // $: metaInfo = [...$stateTableMeta.print()];
 
   function handleNewCoords(event) {
-    console.log("777 11", event.detail.cols)
-    console.log("777 11", event.detail.coords)
-    console.log("777 11 -- selCoordinates deltaCols",$sCoords.select, event.detail.cols)
+    // console.log("777 11 move", event.detail.cols)
+    // console.log("777 11 move", event.detail.coords)
+    // console.log("777 11 move -- selCoordinates deltaCols",$sCoords.select, event.detail.cols)
 
     $sCoords.editCellCols[0] +=  event.detail.coords[0];
     $sCoords.editCellCols[1] +=  event.detail.coords[1];
@@ -51,44 +55,91 @@
     deltaCoordinates[0] += event.detail.coords[0];
     deltaCoordinates[1] += event.detail.coords[1];
 
+    let undoCoordinates = [
+      [$sCoords.select[0][0],$sCoords.select[0][1]],
+      [$sCoords.select[1][0],$sCoords.select[1][1]]
+    ];
+
+    // console.log("777 move save undoCoordinates ", undoCoordinates)
     sCoords.addDeltaCoordinates(event.detail.coords);
 
-    console.log("777 stateCoordinates start", $sCoords)
-    console.log("777 deltaCoordinates --",deltaCoordinates)
-    console.dir($stateTableMatrix)
+    // console.log("777 stateCoordinates start move", $sCoords)
+    // console.log("777 deltaCoordinates -- move",deltaCoordinates)
+    // console.dir($stateTableMatrix)
 
-    let bufferCoords = $stateTableMatrix.areaModify($sCoords.select, [0,0]);//deltaCols2
+    let bufferReadCoords = $stateTableMatrix.areaModify($sCoords.select, [0,0]);//deltaCols2
+    // let bufferCoordsMeta = $stateTableMeta.areaModify($sCoords.select, [0,0]);//deltaCols2
 
-    console.log("777 get coords ",bufferCoords)
+    // console.log("777 bufferReadCoords get coords  move",bufferReadCoords)
 
-    let buffer = $stateTableMatrix.getMatrix(bufferCoords);
+    // readMatrix
 
-    console.log("777 33 --",buffer.print());
+    let buffer = $stateTableMatrix.getMatrix(bufferReadCoords);
+    let bufferMeta = $stateTableMeta.getMatrix(bufferReadCoords);
 
-    bufferCoords = $stateTableMatrix.areaModify($sCoords.select, event.detail.cols);
+    // console.log("777 33 -- move",buffer.print());
 
-    console.log("777 push coords ",bufferCoords)
-    console.log("777 push delta ",event.detail.cols)
+    let bufferWriteCoords = $stateTableMatrix.areaModify($sCoords.select, event.detail.cols);
 
-    $stateTableMatrix.updateMatrix(bufferCoords, buffer)
+    // let bufferBackupCoords = $stateTableMatrix.areaModify($sCoords.select, event.detail.cols);
+    let bufferBackup = $stateTableMatrix.readMatrix(bufferWriteCoords);
+    let bufferBackupMeta = $stateTableMeta.readMatrix(bufferWriteCoords);
 
-    console.log("777 stateCoordinates end", $sCoords)
+    // console.log("777 push coords bufferWriteCoords  move",bufferWriteCoords)
+    // console.log("777 push delta bufferWriteCoords  move",event.detail.cols)
+
+    $stateTableMatrix.updateMatrix(bufferWriteCoords, buffer);
+    $stateTableMeta.updateMatrix(bufferWriteCoords, bufferMeta);
+
+    // stateTableMeta.update($stateTableMeta => $stateTableMeta)
+    $stateTableMeta = $stateTableMeta
+    // let test = $stateTableMeta.getElement(2,1);
+    // test.styles = null;
+
+    // console.log("999 check style move",  $stateTableMeta.getElement(2,1))
+    // console.log("777 ---", $stateTableMeta.print())
+    // console.log("777 stateCoordinates end move", $sCoords)
+
+    sCoords.addDeltaCols(event.detail.cols);
+
+    dispatch('setHistory', {
+      type: "moveArea",
+      parameter: "",
+      valueRedo: {
+        // bufferWriteCoords,
+        // bufferReadCoords,
+        buffer,
+        bufferMeta,
+        coordinates: undoCoordinates,
+        coordinate: [event.detail.cols[0], event.detail.cols[1]],
+      },
+      valueUndo: {
+        // bufferReadCoords,
+        // bufferWriteCoords,
+        buffer,
+        bufferMeta,
+        bufferBackup,
+        bufferBackupMeta,
+        coordinates: [
+          [$sCoords.select[0][0],$sCoords.select[0][1]],
+          [$sCoords.select[1][0],$sCoords.select[1][1]]
+        ],
+        coordinate: [-1 * event.detail.cols[0], -1 * event.detail.cols[1]],
+      },
+      coordinate: [event.detail.cols[0], event.detail.cols[1]],
+      coordinates: undoCoordinates
+    });
 
 	}
 
   function handleUpdateSpace(event) {
     $sCoords.selectSpace = {...event.detail.selectSpace }
     $sCoords.selectCell = {...event.detail.selCell }
-    // cellEditStyle =  {...event.detail.selCell }
-    console.dir($sCoords.selectSpace)
+
+    console.dir($sCoords.selectSpace);
   }
 
   function handleSelectCell(event) {
-    console.log("select")
-    // showEdit =  CellEdit//null;
-    console.dir(event.detail)
-    console.log("999 stateCoordinates start", $sCoords)
-
     // update coordinates
     $sCoords.select = [...event.detail.select];
     $sCoords.selectName = [
@@ -97,22 +148,17 @@
     ];
     $sCoords.editCellCols = [...event.detail.select[0]];
 
-    // $inputStore = $stateTableMatrix.getElement($sCoords.select[0][0], $sCoords.select[0][1]-1);
-    // console.log("999 3 1",$stateTableMatrix.getElement($sCoords.editCellCols[0], $sCoords.editCellCols[1]-1))
-    // console.log("999 3 2",$stateTableMatrix.getElement($sCoords.editCellCols[0], $sCoords.editCellCols[1]))
-    // console.log("999 3 3",$stateTableMatrix.getElement($sCoords.editCellCols[0], $sCoords.editCellCols[1]+1))
+    let meta = $stateTableMeta.getElement($sCoords.editCellCols[0], $sCoords.editCellCols[1]-1);
 
-    $inputStore = $stateTableMatrix.getElement($sCoords.editCellCols[0], $sCoords.editCellCols[1]-1)
-    
-    console.log($stateTableMatrix.print());
-    console.log("999 stateCoordinates end", $sCoords)
-    console.log($sCoords.selectCell)
+    $inputStore = meta &&
+      meta.formula ?
+      meta.formula :
+      $stateTableMatrix.getElement($sCoords.editCellCols[0], $sCoords.editCellCols[1]-1);
   }
 
   function handleDoubleClick(e) {
-    // console.log(e)
-    // console.log("7779 ",$sCoords);
-    // console.log("7779 $sCoords.functionCell.dataset ",$sCoords.functionCell.dataset);
+    console.log("double click", e);
+
     $sCoords.editCell = { //selectCell = {
       height: e.target.offsetHeight,
       width: e.target.offsetWidth,
@@ -121,23 +167,41 @@
     }
 
     $sCoords.editCellCols = [+$sCoords.functionCell.dataset.column, +$sCoords.functionCell.dataset.row + 1];
-    // $inputStore = $stateTableMatrix.getElement($sCoords.editCellCols[0], $sCoords.editCellCols[1])
-
     showEdit = CellEdit
   }
-  // function* showEditCell2(state) {
-  //   // let run = true
-  //   while (true) {
-  //     yield state;
-  //   }
 
-  //   // return { done: true };
-  // }
+  function unpdateFormulasResults() {
+    let index = 0;
+
+    for(let meta of $stateTableMeta.print()) {
+      if (meta && meta.formula) {
+        let formula = new FormulaParser(new ParserMathCols(meta.formula, $stateTableMatrix, ()=>{}));
+        $stateTableMatrix
+          .updateById(index, formula.exec())
+      }
+      index++;
+    }
+    $stateTableMatrix = $stateTableMatrix
+  }
 
   function handleClickOutsideCellEdit() {
     showEdit = null;
     showEditFormula = false;
+    unpdateFormulasResults();
   }
+
+  afterUpdate(() => {
+    $sCoords.selectName[0] = [cols[$sCoords.select[0][0]],$sCoords.select[0][1]];
+    $sCoords.selectName[1] = [cols[$sCoords.select[1][0]],$sCoords.select[1][1]];
+
+    let coords = sCoords.collRange();
+
+    if (coords[0][0] != coords[1][0] || coords[0][1] != coords[1][1]) {
+      $sCoords.functionCell = cells[coords[1][1]][coords[0][0]];
+    } else { 
+      $sCoords.functionCell = cells[coords[1][1]-1][coords[0][0]];
+    }
+  })
 
   function toChar(_: any, i:number) {
     return String.fromCharCode(CODES.A + i);
@@ -156,60 +220,11 @@
   console.log(cols)
 
   // let headerTable = [];
+  // beforeUpdate(() => {
+  // })
 
-  beforeUpdate(() => {
-    // console.log("777 show edit showEdit", showEdit)
-    // console.log("777 show edit showEditCell", showEditCell)
-    // console.log("777 show edit showEditFormula", showEditFormula)
-
-  })
-
-  afterUpdate(() => {
-    console.log("777 show edit showEdit", showEdit)
-    // console.log("777 show edit showEditCell", showEditCell)
-    // console.log("777 show edit showEditFormula", showEditFormula)
-
-    console.log("666 borderCover selCoordinates ",$sCoords.editCellCols,$sCoords.select)
-    // console.log(matrix.print())
-    
-    // console.log("666 stateCoordinates start 777 ", $sCoords)
-
-    $sCoords.selectName[0] = [cols[$sCoords.select[0][0]],$sCoords.select[0][1]];
-    $sCoords.selectName[1] = [cols[$sCoords.select[1][0]],$sCoords.select[1][1]];
-
-    let coords = sCoords.collRange();
-    // console.dir(coords)
-    // console.log($sCoords)
-    if (coords[0][0] != coords[1][0] || coords[0][1] != coords[1][1]) {
-      $sCoords.functionCell = cells[coords[1][1]][coords[0][0]];
-    } else { 
-      $sCoords.functionCell = cells[coords[1][1]-1][coords[0][0]];
-    }
-
-    // console.log("777 show edit", showEdit)
-    // console.log("777 sCoords cell",$sCoords.selectCell)
-    // console.log("777 $sCoords.functionCell", $sCoords.functionCell.offsetTop, $sCoords.functionCell.offsetLeft, $sCoords.functionCell.dataset)
-    console.dir($sCoords.functionCell)
-    console.log($inputStore)
-
-    // console.log("666 cellEditMode", cellEditMode)
-    // console.log("666 $sCoords.select ", $sCoords.select)
-
-    // console.log("666 stateCoordinates end", $sCoords)
-    // console.log("7779 ",$stateTableMatrix.print())
-  })
-
-  // if ($state[0]) {
-  //   headerTable = Object.keys($state[0]);
-  // }
-
-  // export const cells = [] //new Array(20+1).fill(new Array(colsCount)); //"A".charCodeAt(0)
   for(let i=0; i< 21; i++) {
     cells.push([]);
-    // cells[i].push([]);
-    // for(let j=0; j< colsCount; j++) {
-    //   cells[i][j] = "";
-    // }
   }
 
   const onLoad = async () => {
@@ -236,9 +251,6 @@
   }
 
   onMount(onLoad);
-  //- span.cell-span(
-              //-   style='{$stateTableStyles.getElement(index2,index1)}'
-              //- ){@html $stateTableMatrix.getElement(index2,index1)}
 </script>
 
 <!--language=Pug-->
@@ -266,7 +278,11 @@
               bind:cell='{cells[index1][index2]}'
             )
               span.cell-content(
+                style="display: inline-block; width: 100%;"
                 style:font-weight='{$stateTableMeta.getElement(index2,index1).styles?.fontWeight}'
+                style:font-style='{$stateTableMeta.getElement(index2,index1).styles?.fontStyle}'
+                style:text-decoration='{$stateTableMeta.getElement(index2,index1).styles?.textDecoration}'
+                style:text-align='{$stateTableMeta.getElement(index2,index1).styles?.textAlign}'
               ) {@html $stateTableMatrix.getElement(index2,index1)}
       Selection(
         bind:select='{$sCoords.select}'

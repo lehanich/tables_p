@@ -7,7 +7,7 @@
   export let borderCover;
 
   afterUpdate(() => {
-    console.log($$props)
+    // console.log($$props)
     selSpace = {...$$props.selSpace};
   });
 

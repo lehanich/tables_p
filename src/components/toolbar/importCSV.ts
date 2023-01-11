@@ -1,13 +1,13 @@
 // import { writable } from 'svelte/store';
 import { stateTableMatrix, stateCoordinates, inputStore } from '../../lib/data/stores';
 
-let data
+let data;
 stateTableMatrix.subscribe(value => {
     console.log(value);
     data = value;
 });
 
-let input
+let input;
 inputStore.subscribe(value => {
     console.log(value);
     input = value;
@@ -52,11 +52,6 @@ function* parseChunk(chunk: Uint8Array) {
     }
 }
 
-// export const data = writable(new Array(20+1).fill(new Array(26)));
-// const dataInit = writable([[],[],[],
-//     [],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],
-//   ]);
-
 export function importCSV (files: FileList) {
     try {
         const formData = new FormData()
@@ -65,7 +60,6 @@ export function importCSV (files: FileList) {
             method: 'POST',
             body: formData
         };
-
 
         fetch('/api/parse-csv', requestOptions).then(async (response) => {
             const reader = response.body!.getReader();
@@ -78,7 +72,6 @@ export function importCSV (files: FileList) {
                     const arrString = []
                     // @ts-ignore
 
-
                     for (const [key, value] of Object.entries(res)) {
                         // console.log(`${key}: ${value}`);
                         if(key !== "id") {
@@ -90,11 +83,9 @@ export function importCSV (files: FileList) {
                     // console.log($data)
                     stringNum++
                 }
-                // stateTable.update(arr => [...newData, ...arr]); //[...arr, arrString]);
 
                 const start = stateCoordinates.get().select[0];
-                // console.log(data)
-                // console.log($data)
+
                 for(let j=0; j < newData.length; j++ ) {
                     for(let k=0; k < newData.length; k++ ) {
                         // stateTableMatrix.setElement = {x: start[0] + k, y: start[1] + j - 1, value: newData[j][k]};
@@ -102,11 +93,8 @@ export function importCSV (files: FileList) {
                         // stateTableMatrix.set({x: start[0] + k, y: start[1] + j - 1, value: newData[j][k]});
                     }
                 }
-                // input =  newData[0][0];
-                // inputStore.update(input => input)
-                inputStore.set(newData[0][0])
-                console.log(input, inputStore)
-                stateTableMatrix.update(data => data)
+                inputStore.set(newData[0][0]);
+                stateTableMatrix.update(data => data);
             }
         })
 
