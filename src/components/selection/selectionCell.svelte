@@ -53,6 +53,7 @@
     border-width: 0;
     border-style: solid;
     padding: 0;
+    z-index: 2;
   }
   .active-cell-border {
     border-color: #1a73e8;
