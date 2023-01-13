@@ -98,8 +98,8 @@
   }
 
   function handleNewCoords(event) {
-    $sCoords.editCellCols[0] +=  event.detail.coords[0];
-    $sCoords.editCellCols[1] +=  event.detail.coords[1];
+    $sCoords.editCellCols[0] +=  event.detail.cols[0];
+    $sCoords.editCellCols[1] +=  event.detail.cols[1];
     // deltaCoordinates
     deltaCoordinates[0] += event.detail.coords[0];
     deltaCoordinates[1] += event.detail.coords[1];
