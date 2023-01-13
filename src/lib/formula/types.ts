@@ -5,7 +5,7 @@ export type FormulaParserEngine<T> = {
   params: any[];
   paramsString: string;
   coordinates: string[];
-  callBack(): string;
+  callBack?: () => string | undefined;
   getCoordinates(str: string): [string, string] | undefined;
 }
 
