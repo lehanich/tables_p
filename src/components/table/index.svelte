@@ -201,10 +201,8 @@
 
     for(let meta of $stateTableMeta.print()) {
       if (meta && meta.formula) {
-        let formula = FormulaStart(meta.formula, $stateTableMatrix, null);
-
         $stateTableMatrix
-          .updateById(index, formula.exec())
+          .updateById(index, FormulaStart(meta.formula, $stateTableMatrix, null))
       }
       index++;
     }

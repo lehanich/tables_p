@@ -16,10 +16,10 @@ export class ParserMathCols implements FormulaParserEngine<any> {
   params: any[];
   paramsString = "";
   coordinates: [string] = ["A1"];
-  callBack: () => string;
+  callBack?: () => string | undefined;
   data;
 
-  constructor(formula: string, data: App.Matrix<T>, callback: () => string) {
+  constructor(formula: string, data: App.Matrix<T>, callback: () => string | undefined) {
     this.formula = formula;
     this.params = [];
     this.coordinates; // = coordinates; // CellAddrReg
@@ -33,6 +33,7 @@ export class ParserMathCols implements FormulaParserEngine<any> {
       this.formulaName = result1[1];
       this.paramsString = result1[2];
       this.params = this.paramsString.split(";");
+      // console.log("formula params", this.params)
     } else {
       this.formulaName = "";
     }
@@ -56,21 +57,20 @@ export class ParserMathCols implements FormulaParserEngine<any> {
     let res;
     let area: App.CoordinatesArea<App.Coordinate> = [[0,1],[0,1]];
     let areaData: App.MatrixEngine<T>;
-
     for(const item of this.params) {
+
       switch (true) {
         case /^([A-Z])(\d+)$/g.test(item):
-          // const c = this.getCoordinates(item);
           res = /^([A-Z])(\d+)$/g.exec(item);
           if (!res) {
             result.push(NaN);
           } else {
-            result.push(Number(this.data.getElement(String(res[1]).charCodeAt(0) - CODES.A, Number(res[2]))));
+            result.push(Number(this.data.getElement(String(res[1]).charCodeAt(0) - CODES.A, Number(res[2])-1)));
           }
           break;
         case /^([A-Z])(\d+):([A-Z])(\d+)$/g.test(item):
           res = /^([A-Z])(\d+):([A-Z])(\d+)$/g.exec(item);
-
+          console.log("formula param", res)
           if (!res) {
             result.push(NaN);
           } else {
