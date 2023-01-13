@@ -1,4 +1,4 @@
-import { writable } from 'svelte/store';
+// import { writable } from 'svelte/store';
 import { tableStore } from './storeTable';
 import { tableStoreMatrix } from './storeTableMatrix';
 import { coordinatesStore } from "./storeCoordinates";

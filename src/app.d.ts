@@ -113,24 +113,37 @@ declare namespace App {
 		get width(): number;
 		get height(): number;
 		get array(): T[][];
+
+		updateMatrixFromCursor(coordinate: App.Coordinate, buffer: App.MatrixEngine<T>): void;
+		getMatrixString(area: App.CoordinatesArea<App.Coordinate>, separator: string): string;
+		unionElements(area: App.CoordinatesArea<App.Coordinate>): void;
+		separateElements(area: App.CoordinatesArea<App.Coordinate>): void;
 	}
 
 	export type MetaData = {
-		style: null | {
+		styles: null | {
 			fontStyle: string,
 			fontWeight: string,
 			textDecoration: string,
-			textAlign: string
+			textAlign: string,
+			display:string,
+			width: string,
+			height: string
 		},
-		formula?: null | undefined | string
+		formula?: null | undefined | string,
+		main?: boolean,
+		union?: CoordinatesArea<Coordinate>
 	}
 
 	export const nullMeta: MetaData = {
-		style: {
+		styles: {
 			fontStyle: "none",
 			fontWeight: "normal",
 			textDecoration: "none",
-			textAlign: "left"
+			textAlign: "left",
+			display: "block",
+			width: "120px",
+			height: "24px"
 		}
 	}
 }

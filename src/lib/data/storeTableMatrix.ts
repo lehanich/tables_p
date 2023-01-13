@@ -35,7 +35,20 @@ export const tableStoreMatrix = (key: string, initial: [number, number, "" | obj
       },
       print() {
         return tableData.print();
-      }
+      },
+      unionCols:(value: App.CoordinatesArea<App.Coordinate>) => {
+        update(store => {
+          console.log("table", store)
+          store.unionElements(value);
+          return store;
+        });
+      },
+      separateCols:(value: App.CoordinatesArea<App.Coordinate>) => {
+        update(store => {
+          store.separateElements(value);
+          return store;
+        });
+      },
   }
   
 }

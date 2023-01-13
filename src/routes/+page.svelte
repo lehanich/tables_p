@@ -69,7 +69,6 @@
           break;
 
         case "input_formula":
-          console.log("history formula ",$sCoords.editCellCols, state.coordinate)
           if ($sCoords.editCellCols[0] === state.coordinate[0] &&
               $sCoords.editCellCols[1] === state.coordinate[1]) {
             $inputStore = value;
@@ -83,7 +82,7 @@
             );
             $stateTableMeta = $stateTableMeta;
           }
-          console.log("history check meta ",$stateTableMeta.print())
+          // console.log("history check meta ",$stateTableMeta.print())
           break;
         
         case "click_formula":

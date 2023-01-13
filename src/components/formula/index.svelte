@@ -6,12 +6,11 @@
     afterUpdate,
     beforeUpdate,
     tick } from 'svelte';
-	// import { beforeUpdate } from 'svelte/types/runtime/internal/lifecycle';
   import { stateTableMatrix,
     stateTableMeta,
     stateCoordinates as sCoords,
     inputStore } from "../../lib/data/stores";
-  import FormulaParser, {ParserMathCols} from "../../lib/formula/FormulaParser";
+  import FormulaStart from "../../lib/formula/FormulaStart";
   import {createEventbusDispatcher} from '../../lib/eventBus';
 
   const dispatch = createEventbusDispatcher();
@@ -42,12 +41,9 @@
     }
 
     historyOldVal = $inputStore;
-
   };
 
   function handleKeydown(e) {
-    // console.log("history key",e);
-    // console.log('history currentColor:', $inputStore, 'prevColor:', historyOldVal);
     keyDown = true;
   }
 
@@ -65,11 +61,11 @@
         .setElement($sCoords.editCellCols[0], $sCoords.editCellCols[1]-1, meta)
       $stateTableMeta = $stateTableMeta;
 
-      let test = new FormulaParser(new ParserMathCols($inputStore, $stateTableMatrix, ()=>{}));
+      let formula = FormulaStart($inputStore, $stateTableMatrix, null); // new FormulaParser(new ParserMathCols($inputStore, $stateTableMatrix, ()=>{}));
 
       $stateTableMatrix
         .update($sCoords.editCellCols[0], $sCoords.editCellCols[1]-1)
-        .element = test.exec();test.exec();
+        .element = formula.exec();
 
       $stateTableMatrix = $stateTableMatrix;
     } else {

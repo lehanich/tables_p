@@ -49,7 +49,7 @@
   }
 
   afterUpdate(() => {
-    console.log("SELECT AREA", selectCover, getSelectArea());
+    // console.log("SELECT AREA", selectCover, getSelectArea());
     
     borderCover = {
       ...borderCover,

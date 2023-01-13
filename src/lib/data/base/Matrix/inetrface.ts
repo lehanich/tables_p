@@ -60,4 +60,9 @@ export interface Matrix<T> {
   get width(): number;
   get height(): number;
   get array(): T[][];
+
+  updateMatrixFromCursor(coordinate: App.Coordinate, buffer: App.MatrixEngine<T>): void;
+  getMatrixString(area: App.CoordinatesArea<App.Coordinate>, separator: string): string;
+  unionElements(area: App.CoordinatesArea<App.Coordinate>): void;
+  separateElements(area: App.CoordinatesArea<App.Coordinate>): void;
 }

@@ -31,5 +31,6 @@
     left: 717px;
     width: 202px;
     height: 126px;
+    z-index: 2;
   }
 </style>
