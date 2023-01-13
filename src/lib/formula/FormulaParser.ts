@@ -20,12 +20,13 @@ export default class FormulaParser implements IFormulaParser<any> {
   }
 
   exec(): string {
+    const a = this.parser.exec();
     try {
-      const a = this.parser.exec();
+      // const a = this.parser.exec();
       const f = this.engine[this.parser.formulaName];
       return f(a);
-    } catch {
-      console.log("Formula not exist")
+    } catch (e) {
+      console.log("Formula error: ",e)
       return "#ERROR";
     }
   };

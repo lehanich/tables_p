@@ -11,7 +11,7 @@ let fParser: IFormulaParser<any>;
 export default function FormulaStart(
   formula: string,
   data: App.Matrix<T>,
-  callback = undefined): IFormulaParser<any> {
+  callback = undefined): string {
 
   let formulaName = "";
   const result1 = /^=([A-Z\d_]+)\((.*)\)$/g.exec(formula);
@@ -26,5 +26,10 @@ export default function FormulaStart(
     }
   });
 
-  return fParser;
+  try {
+    return fParser.exec();
+  } catch (e) {
+    console.log("Formula error:", e);
+    return "#ERROR";
+  };
 }

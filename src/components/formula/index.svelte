@@ -18,11 +18,10 @@
   let historyOldVal: string;
   let keyDown
 
-  var myRe ;
+  var myRe = /^=/g;
   var myArray ;
 
   $: {
-    myRe = /^=/g;
     myArray = myRe.exec($inputStore);
 
     if(historyOldVal !== $inputStore && keyDown) {
@@ -48,9 +47,8 @@
   }
 
   afterUpdate(() => {
+    console.log("formula 1", $inputStore, myArray);
     if (myArray?.index === 0) {
-      var myRe2 = /^=SUM\((\w)(\d):(\w)(\d)\)/g;
-      var myArray2 = myRe2.exec($inputStore);
 
       let meta =  $stateTableMeta
         .getElement($sCoords.editCellCols[0], $sCoords.editCellCols[1]-1);
@@ -61,11 +59,9 @@
         .setElement($sCoords.editCellCols[0], $sCoords.editCellCols[1]-1, meta)
       $stateTableMeta = $stateTableMeta;
 
-      let formula = FormulaStart($inputStore, $stateTableMatrix, null); // new FormulaParser(new ParserMathCols($inputStore, $stateTableMatrix, ()=>{}));
-
       $stateTableMatrix
         .update($sCoords.editCellCols[0], $sCoords.editCellCols[1]-1)
-        .element = formula.exec();
+        .element = FormulaStart($inputStore, $stateTableMatrix, null);
 
       $stateTableMatrix = $stateTableMatrix;
     } else {
