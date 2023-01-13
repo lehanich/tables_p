@@ -3,13 +3,15 @@
   import {importCSV} from "./importCSV";
   import { stateTableMatrix,
     stateTableMeta,
+    stateTable,
     stateCoordinates as sCoords,
     inputStore,
     stateHistory } from "../../lib/data/stores";
   import {createEventbusDispatcher} from '../../lib/eventBus';
-  import FormulaParser, {ParserMathCols} from "../../lib/formula/FormulaParser";
+  // import FormulaStart from "../../lib/formula/FormulaStart";
 
   let files;
+  let fileInput;
   let formula;
   let fetchStatus = 'INITIAL';
   let historyOldVal;
@@ -20,8 +22,45 @@
     dispatch('readHistory', mode);
   }
 
+  const handleUnion = () => {
+    console.log("table union")
+    // let bufferCoords = $stateTableMatrix.areaModify($sCoords.select, [0,0]);
+    // let buffer = $stateTableMatrix.getMatrixString(bufferCoords, "\t");
+    // console.log("table ",$stateTable.cells.print())
+    stateTableMeta.unionCols($sCoords.select);
+    $stateTableMeta = $stateTableMeta;
+    // $stateTable.cells.unionElements($sCoords.select)
+    console.log("table", $stateTableMeta.print());
+  }
+
+  const handleSeparate = () => {
+    stateTableMeta.separateCols($sCoords.select);
+    $stateTableMeta = $stateTableMeta;
+    // $stateTable.cells.separateElements($sCoords.select)
+    console.log("table", $stateTableMeta.print());
+  }
+
+  const download = (filename) => {
+    let text = $stateTableMatrix.getMatrixString([[0,1],[$stateTableMatrix.width,$stateTableMatrix.height]], ";")
+    var element = document.createElement('a');
+    element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
+    element.setAttribute('download', filename);
+
+    element.style.display = 'none';
+    document.body.appendChild(element);
+
+    element.click();
+
+    document.body.removeChild(element);
+  }
+
+  const fileInputClick = () => {
+    fileInput.value = null;
+    fileInput.click()
+  }
   const handleImportCSV = () => {
       console.log("CLICK");
+
       if (files) {
         fetchStatus = 'PENDING';
         try {
@@ -228,8 +267,26 @@
     Button.button(
       click='{handleFunctions}'
     ) functions
-    Button.button(click="{handleImportCSV}") upload_file
-    input(type="file" bind:files)
+    Button.button(
+      click='{will(fileInputClick,\'\')}'
+    ) upload_file
+    Button.button(
+      click='{will(download,\'export.csv\')}'
+    ) download
+    Button.button(
+      click='{will(handleUnion,\'\')}'
+    ) add
+    Button.button(
+      click='{will(handleSeparate,\'\')}'
+    ) cancel
+    div
+      input(
+        type="file"
+        bind:files
+        bind:this='{fileInput}'
+        on:change='{will(handleImportCSV,\'\')}'
+        style='display:none;'
+      )
 </template>
 
 <style lang="scss" module>
