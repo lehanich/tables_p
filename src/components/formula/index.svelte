@@ -47,13 +47,13 @@
   }
 
   afterUpdate(() => {
-    console.log("formula 1", $inputStore, myArray);
-    if (myArray?.index === 0) {
+    if (myRe.exec($inputStore)?.index === 0) {
 
       let meta =  $stateTableMeta
         .getElement($sCoords.editCellCols[0], $sCoords.editCellCols[1]-1);
       if (!meta) {meta = {}; }
 
+      // console.log("formula input ",$inputStore)
       meta.formula =  $inputStore;
       $stateTableMeta
         .setElement($sCoords.editCellCols[0], $sCoords.editCellCols[1]-1, meta)

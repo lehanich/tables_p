@@ -58,7 +58,6 @@ export class ParserMathCols implements FormulaParserEngine<any> {
     let area: App.CoordinatesArea<App.Coordinate> = [[0,1],[0,1]];
     let areaData: App.MatrixEngine<T>;
     for(const item of this.params) {
-
       switch (true) {
         case /^([A-Z])(\d+)$/g.test(item):
           res = /^([A-Z])(\d+)$/g.exec(item);
@@ -70,7 +69,6 @@ export class ParserMathCols implements FormulaParserEngine<any> {
           break;
         case /^([A-Z])(\d+):([A-Z])(\d+)$/g.test(item):
           res = /^([A-Z])(\d+):([A-Z])(\d+)$/g.exec(item);
-          console.log("formula param", res)
           if (!res) {
             result.push(NaN);
           } else {
