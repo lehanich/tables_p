@@ -11,12 +11,15 @@
           every, every2, onlyEvent, onlyEvents } from "../../lib/eventIter";
   import {clickOutside } from "../../lib/clickOutside";
   import { stateTableMatrix,
+    stateTable,
     stateTableMeta,
     stateCoordinates as sCoords,
     inputStore } from "../../lib/data/stores"; //stateTable as state,
+  import Matrix from "../../lib/data/base/Matrix/Matrix";
+  import FormulaStart from "../../lib/formula/FormulaStart";
+  import {createEventbusDispatcher} from "../../lib/eventBus";
 
-  import FormulaParser, {ParserMathCols} from "../../lib/formula/FormulaParser";
-  import {createEventbusDispatcher} from '../../lib/eventBus';
+  import {shortcut} from "../../lib/shortcut";
 
   const dispatch = createEventbusDispatcher();
   let showEdit ;//= generator.next();
@@ -39,19 +42,65 @@
   $: cellEditMode = showEdit ? "text" : (showEditFormula ? "formula" : "text");
   $: metaData = $stateTableMeta.array;
 
+  function shandleShortcut(e) {
+    console.log("copy", e)
+    
+  }
+
+  const copyContent = async () => {
+    try {
+      let bufferCoords = $stateTableMatrix.areaModify($sCoords.select, [0,0]);
+      let buffer = $stateTableMatrix.getMatrixString(bufferCoords, "\t");
+
+      await navigator.clipboard.writeText(buffer);
+    } catch (err) {
+      console.error('Failed to copy: ', err);
+    }
+  }
+
+  const readContent = async () => {
+    try {
+      let t = await navigator.clipboard.readText();
+      let a = t.split("\n");
+      let l = a[0].split("\t");
+      let pasteMatrix = new Matrix(l.length, a.length, "");
+      for(let i=0; i< a.length; i++) {
+        let colls = a[i].split("\t");
+
+        for(let j=0; j< colls.length; j++) {
+          pasteMatrix.setElement(j,i,colls[j]);
+        }
+      }
+
+      $stateTableMatrix.updateMatrixFromCursor($sCoords.select[0], pasteMatrix);
+      stateTableMatrix.update($stateTableMatrix => $stateTableMatrix) ;
+      $inputStore = <string>pasteMatrix.getElement(0,0);
+    } catch (err) {
+      console.error('Failed to copy: ', err);
+    }
+  }
+
+  let shortcutObj = [
+    {control: true, code: 'KeyC', callback: copyContent},
+    {control: true, code: 'KeyV', callback: readContent}
+  ];
+
+  function copySuccess(e) {
+    console.log("copy", e)
+  }
+
+  function copyError(e) {
+    console.log("copy", e)
+  }
+
   function handleNullDelta(event) {
     deltaCoordinates = [0,0];
   }
-  // $: metaInfo = [...$stateTableMeta.print()];
 
   function handleNewCoords(event) {
-    // console.log("777 11 move", event.detail.cols)
-    // console.log("777 11 move", event.detail.coords)
-    // console.log("777 11 move -- selCoordinates deltaCols",$sCoords.select, event.detail.cols)
-
     $sCoords.editCellCols[0] +=  event.detail.coords[0];
     $sCoords.editCellCols[1] +=  event.detail.coords[1];
-    // deltaCoordinates   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    // deltaCoordinates
     deltaCoordinates[0] += event.detail.coords[0];
     deltaCoordinates[1] += event.detail.coords[1];
 
@@ -60,45 +109,20 @@
       [$sCoords.select[1][0],$sCoords.select[1][1]]
     ];
 
-    // console.log("777 move save undoCoordinates ", undoCoordinates)
     sCoords.addDeltaCoordinates(event.detail.coords);
 
-    // console.log("777 stateCoordinates start move", $sCoords)
-    // console.log("777 deltaCoordinates -- move",deltaCoordinates)
-    // console.dir($stateTableMatrix)
-
     let bufferReadCoords = $stateTableMatrix.areaModify($sCoords.select, [0,0]);//deltaCols2
-    // let bufferCoordsMeta = $stateTableMeta.areaModify($sCoords.select, [0,0]);//deltaCols2
-
-    // console.log("777 bufferReadCoords get coords  move",bufferReadCoords)
-
-    // readMatrix
-
     let buffer = $stateTableMatrix.getMatrix(bufferReadCoords);
     let bufferMeta = $stateTableMeta.getMatrix(bufferReadCoords);
-
-    // console.log("777 33 -- move",buffer.print());
-
     let bufferWriteCoords = $stateTableMatrix.areaModify($sCoords.select, event.detail.cols);
-
-    // let bufferBackupCoords = $stateTableMatrix.areaModify($sCoords.select, event.detail.cols);
     let bufferBackup = $stateTableMatrix.readMatrix(bufferWriteCoords);
     let bufferBackupMeta = $stateTableMeta.readMatrix(bufferWriteCoords);
-
-    // console.log("777 push coords bufferWriteCoords  move",bufferWriteCoords)
-    // console.log("777 push delta bufferWriteCoords  move",event.detail.cols)
 
     $stateTableMatrix.updateMatrix(bufferWriteCoords, buffer);
     $stateTableMeta.updateMatrix(bufferWriteCoords, bufferMeta);
 
     // stateTableMeta.update($stateTableMeta => $stateTableMeta)
     $stateTableMeta = $stateTableMeta
-    // let test = $stateTableMeta.getElement(2,1);
-    // test.styles = null;
-
-    // console.log("999 check style move",  $stateTableMeta.getElement(2,1))
-    // console.log("777 ---", $stateTableMeta.print())
-    // console.log("777 stateCoordinates end move", $sCoords)
 
     sCoords.addDeltaCols(event.detail.cols);
 
@@ -106,16 +130,13 @@
       type: "moveArea",
       parameter: "",
       valueRedo: {
-        // bufferWriteCoords,
-        // bufferReadCoords,
+
         buffer,
         bufferMeta,
         coordinates: undoCoordinates,
         coordinate: [event.detail.cols[0], event.detail.cols[1]],
       },
       valueUndo: {
-        // bufferReadCoords,
-        // bufferWriteCoords,
         buffer,
         bufferMeta,
         bufferBackup,
@@ -143,8 +164,8 @@
     // update coordinates
     $sCoords.select = [...event.detail.select];
     $sCoords.selectName = [
-      [cols[event.detail.select[0][0]],event.detail.select[0][1]],
-      [cols[event.detail.select[1][0]],event.detail.select[1][1]]
+      [$stateTable.cols[event.detail.select[0][0]],event.detail.select[0][1]],
+      [$stateTable.cols[event.detail.select[1][0]],event.detail.select[1][1]]
     ];
     $sCoords.editCellCols = [...event.detail.select[0]];
 
@@ -157,16 +178,21 @@
   }
 
   function handleDoubleClick(e) {
-    console.log("double click", e);
+    console.log("double click", e, +$sCoords.functionCell.dataset.column, +$sCoords.functionCell.dataset.row + 1);
+
+    const width = $stateTableMeta.getElement(+$sCoords.functionCell.dataset.column, +$sCoords.functionCell.dataset.row + 1).styles?.width;
+    const height = $stateTableMeta.getElement(+$sCoords.functionCell.dataset.column, +$sCoords.functionCell.dataset.row + 1).styles?.height;
 
     $sCoords.editCell = { //selectCell = {
-      height: e.target.offsetHeight,
-      width: e.target.offsetWidth,
+      height: height ? +height.replace("px","") : 24, //e.target.offsetHeight, HARDCODE !!!
+      width: width ? +width.replace("px","") : 120, //e.target.offsetWidth, HARDCODE !!!
       top: $sCoords.selectCell.top,
       left: $sCoords.selectCell.left,
     }
+    console.log("double click editcell", $sCoords.editCell);
 
     $sCoords.editCellCols = [+$sCoords.functionCell.dataset.column, +$sCoords.functionCell.dataset.row + 1];
+    $sCoords = $sCoords;
     showEdit = CellEdit
   }
 
@@ -175,7 +201,8 @@
 
     for(let meta of $stateTableMeta.print()) {
       if (meta && meta.formula) {
-        let formula = new FormulaParser(new ParserMathCols(meta.formula, $stateTableMatrix, ()=>{}));
+        let formula = FormulaStart(meta.formula, $stateTableMatrix, null);
+
         $stateTableMatrix
           .updateById(index, formula.exec())
       }
@@ -187,12 +214,19 @@
   function handleClickOutsideCellEdit() {
     showEdit = null;
     showEditFormula = false;
+    $sCoords.editCell = { //selectCell = {
+      ...$sCoords.editCell,
+      top: -100,
+      left: -100,
+    }
     unpdateFormulasResults();
   }
 
   afterUpdate(() => {
-    $sCoords.selectName[0] = [cols[$sCoords.select[0][0]],$sCoords.select[0][1]];
-    $sCoords.selectName[1] = [cols[$sCoords.select[1][0]],$sCoords.select[1][1]];
+    console.log("table ", $stateTableMeta.print());
+
+    $sCoords.selectName[0] = [$stateTable.cols[$sCoords.select[0][0]],$sCoords.select[0][1]];
+    $sCoords.selectName[1] = [$stateTable.cols[$sCoords.select[1][0]],$sCoords.select[1][1]];
 
     let coords = sCoords.collRange();
 
@@ -202,26 +236,6 @@
       $sCoords.functionCell = cells[coords[1][1]-1][coords[0][0]];
     }
   })
-
-  function toChar(_: any, i:number) {
-    return String.fromCharCode(CODES.A + i);
-  }
-
-  const CODES = {
-    A: 65,
-    Z: 90,
-  };
-  const colsCount = CODES.Z - CODES.A + 1;
-  const rows = [] //new Array(20+1);
-  for(let i=0; i< 21; i++) { rows.push("")}
-
-  const cols = [] //new Array(colsCount).fill('').map(toChar); //.map(toColumn).join('');
-  for(let i=0; i< colsCount; i++) { cols.push(toChar(cols,i))}
-  console.log(cols)
-
-  // let headerTable = [];
-  // beforeUpdate(() => {
-  // })
 
   for(let i=0; i< 21; i++) {
     cells.push([]);
@@ -265,17 +279,22 @@
     div.table(
       bind:this='{table}'
       on:dblclick='{handleDoubleClick}'
+      use:shortcut='{shortcutObj}'
+      on:click='{shandleShortcut}'
     )
-      Row
-        +each('cols as col, index (1000 + index)')
+      Row(index="{null}")
+        +each('$stateTable.cols as col, index (1000 + index)')
           Column(bind:cell='{cells[0][index]}') {col}
-      +each('rows as row, index1 (3000 + index1)')
+      +each('$stateTable.rows as row, index1 (3000 + index1)')
         Row(index="{index1}")
-          +each('cols as col, index2 (4000 + index2)')
+          +each('$stateTable.cols as col, index2 (4000 + index2)')
             Cell(
               row="{index1}"
               column="{index2}"
               bind:cell='{cells[index1][index2]}'
+              width='{$stateTableMeta.getElement(index2,index1).styles?.width}'
+              height='{$stateTableMeta.getElement(index2,index1).styles?.height}'
+              display='{$stateTableMeta.getElement(index2,index1).styles?.display}'
             )
               span.cell-content(
                 style="display: inline-block; width: 100%;"
@@ -292,11 +311,13 @@
         deltaCols="{deltaCoordinates}"
         on:nullDelta='{handleNullDelta}'
       )
-      div.test(
+      div.cellEdit(
         style=`position: absolute; top: {$sCoords.editCell.top}px;
               left: {$sCoords.editCell.left}px;
               width: {$sCoords.editCell.width}px;
-              height: {$sCoords.editCell.height}px;`
+              height: {$sCoords.editCell.height}px;
+              z-index: 2;
+              cursor: text;`
         use:clickOutside
         on:click_outside='{handleClickOutsideCellEdit}'
       )
