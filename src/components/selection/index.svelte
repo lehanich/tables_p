@@ -11,8 +11,6 @@
 
   const { getSelect, getCells, getTable } = getContext("show");
   const dispatch = createEventbusDispatcher(); // createEventDispatcher();
-  // console.log("event bus",dispatch);
-  // console.dir(dispatch);
 
   export let borderCover;
   export let select;

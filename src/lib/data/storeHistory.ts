@@ -1,17 +1,20 @@
 import { writable } from 'svelte/store';
+import LinkStack from './base/LinkStack/LinkStack';
 
-class HistoryStore {
-  constructor() {
-    this._history = writable([])
-  }
+type T = any;
 
-  parse(string) {
-    this._history.update(v => [...v, string])
-  }
-    
-  subscribe(run) {
-    return this._history.subscribe(run);
+export const historyStore = () => {
+  const data: LinkStack<T> = new LinkStack();
+  const store = writable(data);
+
+  return {
+    subscribe: store.subscribe,
+    update: store.update,
+    set: (value: any) => {
+      return store.set(value)
+    },
+    get: () => {
+      return data;
+    }
   }
 }
-
-export const historyStore = new HistoryStore();

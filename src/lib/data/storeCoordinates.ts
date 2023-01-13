@@ -2,7 +2,7 @@ import { writable } from 'svelte/store';
 import { toChar } from "../tableHeplers";
 
 export const coordinatesStore = () => {
-  const data: Coordinates = {
+  const data: App.Coordinates = {
     select: [[0,1],[0,1]],
     selectName: [['A',1],['A',1]],
     // selectPx: {
@@ -56,7 +56,7 @@ export const coordinatesStore = () => {
   return {
     subscribe: store.subscribe,
     update: store.update,
-    set: (value) => {
+    set: (value: App.Coordinates) => {
       return store.set(value)
     },
     get: () => {
@@ -74,13 +74,13 @@ export const coordinatesStore = () => {
         return store;
       });
     },
-    setSelectNameFirst: (value: [number, number]) => {
+    setSelectNameFirst: (value: [string, number]) => {
       store.update(store => {
         store.selectName[0] = [...value];
         return store;
       })
     },
-    setSelectNameSecond: (value: [number, number]) => {
+    setSelectNameSecond: (value: [string, number]) => {
       store.update(store => {
         store.selectName[1] = [...value];
         return store;
@@ -124,11 +124,11 @@ export const coordinatesStore = () => {
     collRangeName: () => {
       return [[
         String.fromCharCode(
-          Math.min(data.selectName[0][0].charCodeAt(), data.selectName[1][0].charCodeAt())),
+          Math.min(data.selectName[0][0].charCodeAt(0), data.selectName[1][0].charCodeAt(0))),
         Math.min(data.selectName[0][1], data.selectName[1][1])
       ],[
         String.fromCharCode(
-          Math.max(data.selectName[0][0].charCodeAt(), data.selectName[1][0].charCodeAt())),
+          Math.max(data.selectName[0][0].charCodeAt(0), data.selectName[1][0].charCodeAt(0))),
         Math.max(data.selectName[0][1], data.selectName[1][1])
       ]]
     }

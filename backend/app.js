@@ -17,9 +17,9 @@ app.post('/api/parse-csv', async (req, res) => {
             console.log(files.file.filepath);
 
             fs.createReadStream(files.file.filepath)
-                .pipe(csv(
+                .pipe(csv({ separator: ";"}
                     // {
-                    //     mapValues: ({ header, index, value, separator, quote, raw }) => value.toLowerCase()
+                    //     mapValues: ({ header, index, value, quote, raw }) => value.toLowerCase()
                     // }
                 ))
                 .on('data', (data) => {
