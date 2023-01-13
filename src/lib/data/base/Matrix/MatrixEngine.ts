@@ -1,11 +1,14 @@
 type T = "" | object;
 
 const nullMeta: App.MetaData = {
-  style: {
+  styles: {
     fontStyle: "none",
     fontWeight: "normal",
     textDecoration: "none",
-    textAlign: "left"
+    textAlign: "left",
+    display: "block",
+    width: "120px",
+    height: "24px"
   }
 }
 
@@ -32,7 +35,7 @@ export default class MatrixEngine<T> implements App.MatrixEngine<T> {
       this.data.fill(<T>"");
     } else {
       for(let i=0; i < this.data.length; i++) {
-        this.data[i] = <T>{};
+        this.data[i] = <T>{}; // nullMetadata
       }
     }
 
@@ -159,10 +162,7 @@ export default class MatrixEngine<T> implements App.MatrixEngine<T> {
 
     for(const line of dataCoordinates) {
       for(let i = line[0]; i <= line[1]; i++) {
-        // console.log("777 i line buffer[] ", i, line, buffer.getElement(i-line[0], lineIndex) )
-
         this.data[i] = <T>buffer.getElement(i-line[0], lineIndex);
-        
       }
       lineIndex++;
     }
