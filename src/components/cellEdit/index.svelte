@@ -3,7 +3,8 @@
 <script lang="ts">
   import { afterUpdate, beforeUpdate, onMount } from 'svelte';
   import { stateTableMatrix, stateTableMeta, inputStore, stateCoordinates as sCoords } from "../../lib/data/stores";
-
+  import FormulaStart from "../../lib/formula/FormulaStart";
+  
   export let cell: HTMLDivElement;
   export let html: string = "";
 
@@ -19,8 +20,36 @@
       document.getSelection(),
       document.getSelection()?.getRangeAt(0),
       document.getSelection()?.toString())
-  });
+    // let res = myRe.exec($inputStore);
+    console.log("formula 1", $inputStore, /^=/g.test($inputStore));
+    if (/^=/g.test($inputStore)) {
 
+      let meta =  $stateTableMeta
+        .getElement($sCoords.editCellCols[0], $sCoords.editCellCols[1]-1);
+      if (!meta) {meta = {}; }
+
+      console.log("formula input ",$inputStore)
+      meta.formula =  $inputStore;
+      $stateTableMeta
+        .setElement($sCoords.editCellCols[0], $sCoords.editCellCols[1]-1, meta)
+      $stateTableMeta = $stateTableMeta;
+
+      console.log("formula meta ",$stateTableMeta
+        .getElement($sCoords.editCellCols[0], $sCoords.editCellCols[1]-1))
+      $stateTableMatrix
+        .update($sCoords.editCellCols[0], $sCoords.editCellCols[1]-1)
+        .element = FormulaStart($inputStore, $stateTableMatrix, null);
+
+      $stateTableMatrix = $stateTableMatrix;
+    } else {
+      $stateTableMatrix
+        .update($sCoords.editCellCols[0], $sCoords.editCellCols[1]-1)
+        .element = $inputStore;
+
+      $stateTableMatrix = $stateTableMatrix;
+    }
+  })
+  
   const onLoad = async () => {
     cell.focus();
     cell.addEventListener(`selectionchange`, () => {
