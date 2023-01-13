@@ -59,6 +59,7 @@
   }
 
   const readContent = async () => {
+    console.log("readContent");
     try {
       let t = await navigator.clipboard.readText();
       let a = t.split("\n");
@@ -175,6 +176,7 @@
       meta.formula ?
       meta.formula :
       $stateTableMatrix.getElement($sCoords.editCellCols[0], $sCoords.editCellCols[1]-1);
+      console.log("formula table data",$stateTableMatrix.getElement($sCoords.editCellCols[0], $sCoords.editCellCols[1]-1))
   }
 
   function handleDoubleClick(e) {
@@ -221,17 +223,21 @@
   }
 
   afterUpdate(() => {
-    console.log("table ", $stateTableMeta.print());
+    console.log("table meta ", $stateTableMeta.print());
+    console.log("table data ", $stateTableMatrix.print());
 
     $sCoords.selectName[0] = [$stateTable.cols[$sCoords.select[0][0]],$sCoords.select[0][1]];
     $sCoords.selectName[1] = [$stateTable.cols[$sCoords.select[1][0]],$sCoords.select[1][1]];
 
     let coords = sCoords.collRange();
 
-    if (coords[0][0] != coords[1][0] || coords[0][1] != coords[1][1]) {
-      $sCoords.functionCell = cells[coords[1][1]][coords[0][0]];
-    } else { 
-      $sCoords.functionCell = cells[coords[1][1]-1][coords[0][0]];
+    console.log("coords",coords)
+    if (coords[0][1] > 0 && coords[1][1] > 0) {
+      if ((coords[0][0] != coords[1][0] || coords[0][1] != coords[1][1])) {
+        $sCoords.functionCell = cells[coords[1][1]][coords[0][0]];
+      } else { 
+        $sCoords.functionCell = cells[coords[1][1]-1][coords[0][0]];
+      }
     }
   })
 

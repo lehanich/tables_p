@@ -47,18 +47,22 @@
   }
 
   afterUpdate(() => {
-    if (myRe.exec($inputStore)?.index === 0) {
+    // let res = myRe.exec($inputStore);
+    console.log("formula 1", $inputStore, myRe.test($inputStore));
+    if (myRe.test($inputStore)) {
 
       let meta =  $stateTableMeta
         .getElement($sCoords.editCellCols[0], $sCoords.editCellCols[1]-1);
       if (!meta) {meta = {}; }
 
-      // console.log("formula input ",$inputStore)
+      console.log("formula input ",$inputStore)
       meta.formula =  $inputStore;
       $stateTableMeta
         .setElement($sCoords.editCellCols[0], $sCoords.editCellCols[1]-1, meta)
       $stateTableMeta = $stateTableMeta;
 
+      console.log("formula meta ",$stateTableMeta
+        .getElement($sCoords.editCellCols[0], $sCoords.editCellCols[1]-1))
       $stateTableMatrix
         .update($sCoords.editCellCols[0], $sCoords.editCellCols[1]-1)
         .element = FormulaStart($inputStore, $stateTableMatrix, null);
