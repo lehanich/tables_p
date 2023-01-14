@@ -4,7 +4,7 @@ export class Math {
   // constructor() {
 
   // }
-  SUM(a: number[]): number {
+  SUM(a: Iterable<number>): number {
     let result = 0;
 
     for (const element of a) {
@@ -14,19 +14,31 @@ export class Math {
     return result;
   }
 
-  MAX(a: number, b: number): number {
-    if (a > b) {
-      return a;
-    } else {
-      return b;
+  MAX(a: Iterable<number>): number {
+    let result = 0;
+    let index = 0;
+
+    for (const element of a) {
+      if (element > result || index === 0) {
+        result = element;
+      }
+      index++;
     }
+
+    return result;
   }
 
-  MIN(a: number, b: number): number {
-    if (a > b) {
-      return b;
-    } else {
-      return a;
+  MIN(a: Iterable<number>): number {
+    let result = 0;
+    let index = 0;
+
+    for (const element of a) {
+      if (element < result || index === 0) {
+        result = element;
+      }
+      index++;
     }
+
+    return result;
   }
 }

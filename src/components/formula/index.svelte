@@ -18,16 +18,11 @@
   let historyOldVal: string;
   let keyDown
 
-  var myRe = /^=/g;
-  var myArray ;
-
   $: {
-    myArray = myRe.exec($inputStore);
-
     if(historyOldVal !== $inputStore && keyDown) {
       dispatch('setHistory', {
-        type: myArray?.index === 0 ? "input_formula" : "input_text",
-        parameter: myArray?.index === 0 ? "input" : "text",
+        type: $inputStore.substring(0, 1) === "=" ? "input_formula" : "input_text",
+        parameter: $inputStore.substring(0, 1) === "=" ? "input" : "text",
         valueRedo: $inputStore,
         valueUndo: historyOldVal,
         coordinate: [$sCoords.editCellCols[0], $sCoords.editCellCols[1]],
@@ -47,9 +42,7 @@
   }
 
   afterUpdate(() => {
-    // let res = myRe.exec($inputStore);
-    console.log("formula 1", $inputStore, myRe.test($inputStore));
-    if (myRe.test($inputStore)) {
+    if ($inputStore.substring(0, 1) === "=") {
 
       let meta =  $stateTableMeta
         .getElement($sCoords.editCellCols[0], $sCoords.editCellCols[1]-1);
@@ -69,6 +62,7 @@
 
       $stateTableMatrix = $stateTableMatrix;
     } else {
+      console.log("write to data")
       $stateTableMatrix
         .update($sCoords.editCellCols[0], $sCoords.editCellCols[1]-1)
         .element = $inputStore;
