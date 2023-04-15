@@ -273,12 +273,12 @@
     Button.button(
       click='{will(download,\'export.csv\')}'
     ) download
-    //- Button.button(
-    //-   click='{will(handleUnion,\'\')}'
-    //- ) add
-    //- Button.button(
-    //-   click='{will(handleSeparate,\'\')}'
-    //- ) cancel
+    Button.button(
+      click='{will(handleUnion,\'\')}'
+    ) add
+    Button.button(
+      click='{will(handleSeparate,\'\')}'
+    ) cancel
     div
       input(
         type="file"

@@ -18,10 +18,6 @@ const config = {
 			? "excel-backend" : "localhost" }:3000`, // localhost
 		},
 	},
-	// scss: {
-  //   includePaths: ['src', 'layout/styles'], // <-- Добавим в массив 'static/styles'
-  //   prependData: `@import 'index.scss';`, // <-- Добавим эту строку
-  // },
 	css: {
 		// preprocessorOptions: {
 		// 	scss: {
